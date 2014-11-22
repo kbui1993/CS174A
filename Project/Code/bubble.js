@@ -20,13 +20,8 @@ function addRow() {
 		newRow[i] = new Bubble();
 	}
 
-	// move current rows down
-	for (var i = numRows; i > 0; i--) {
-		playingField[i] = playingField[i-1].slice(0);
-	}
-
 	// add new row to top of playing field
-	playingField[0] = newRow.slice(0);
+	playingField[numRows] = newRow.slice(0);
 	numRows++;
 }
 

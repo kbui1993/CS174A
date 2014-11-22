@@ -28,8 +28,8 @@ var index = 0;
 // playing field variables
 var numRows = 0;
 var numCols = 10;
+var maxRows = 10;
 var playingField = Array(maxRows);
-var maxRows = 9;
 var upperLeft = [-9, 19];
 var lowerRight = [9, 1];
 var currBubble = new Bubble();
@@ -68,11 +68,11 @@ window.onload = function init() {
 
 	// generate vertices
 	cannon();
-	tetrahedron(va, vb, vc, vd, 9);
+	tetrahedron(va, vb, vc, vd, 3);
 
-	// add new row every four seconds
+	// add new row every time interval
 	addRow();
-	window.setInterval(addRow, 2000);
+	window.setInterval(addRow, 4000);
 
 	// link vColor on js to html
 	vColor = gl.getUniformLocation(program, "vColor");
@@ -111,7 +111,7 @@ function render() {
 	// render playing field
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(bubblePts), gl.STATIC_DRAW);
 	y = upperLeft[1];
-	for (var j = 0; j < numRows; j++) {
+	for (var j = numRows-1; j >= 0; j--) {
 		var x = upperLeft[0];
 
 		// Stagger every other row
