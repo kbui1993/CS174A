@@ -75,7 +75,7 @@ window.onload = function init() {
 
 	// add new row every time interval
 	addRow();
-	// window.setInterval(addRow, 10000);
+	window.setInterval(addRow, 10000);
 
 	// link vColor on js to html
 	vColor = gl.getUniformLocation(program, "vColor");
