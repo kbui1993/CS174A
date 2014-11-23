@@ -8,6 +8,11 @@ function Bubble(x,y) {
     this.draw = true;
 }
 
+function copy(x, y) {
+	x.color = y.color;
+	x.draw = true;
+}
+
 function addRow() {
 	if (numRows == maxRows) {
 		// TO DO: game over
@@ -57,6 +62,7 @@ function addRowBottom() {
 	for (var i = 0; i < newRow.length; i++) {
 		// newRow[i] = new Bubble(2*i+upperLeft[0], upperLeft[1]);
 		newRow[i] = new Bubble(2 * i + upperLeft[0] + numCols - newRow.length, upperLeft[1] - numRows * 1.7);
+		newRow[i].draw = false;
 	}
 
 	// add new row to top of playing field
@@ -72,10 +78,12 @@ function fire() {
 }
 
 function drawBubble(bubble) {
-	if (!bubble.draw)
-		return;
+	// if (!bubble.draw)
+	// 	return;
 	var translation = vec3(bubble.x, bubble.y, 0);
 	var color = bubble.color;
+	if (!bubble.draw)
+		color = [0, 0, 0, 1];
 	if (bubble.detect) {
 		color = [0, 0, 0, 1];
 	}

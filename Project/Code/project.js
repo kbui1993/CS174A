@@ -45,11 +45,11 @@ document.addEventListener('keydown', function(event) {
             break;
         case 39: // right arrow
             if (cannonAngle > -85)
-                cannonAngle -= 4;
+                cannonAngle -= 3;
             break;
         case 37: // left arrow
         	if (cannonAngle < 85)
-                cannonAngle += 4;
+                cannonAngle += 3;
             break;
         // TODO: pause/unpause?
         //		 restart?
@@ -75,7 +75,7 @@ window.onload = function init() {
 
 	// add new row every time interval
 	addRow();
-	window.setInterval(addRow, 3000);
+	// window.setInterval(addRow, 10000);
 
 	// link vColor on js to html
 	vColor = gl.getUniformLocation(program, "vColor");
@@ -111,10 +111,30 @@ function render() {
 	gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, numVertices);
 
+    //render line
+    var dx = 0, dy = 0;
     gl.uniform4fv(vColor, vec4(0.5, 0.5, 0.5, 1));
-    ctm = mult(ctm, scale(vec3(0.1, 1.0, 0.1)));
-    for (var i = 0; i < 10; i++) {
-        ctm = mult(translate(2 * Math.sin(radians(-cannonAngle)), 2 * Math.cos(radians(-cannonAngle)), 0), ctm);
+    for (var i = 0; i < 15; i++) {
+        dx += 2 * Math.sin(radians(-cannonAngle));
+        dy += 2 * Math.cos(radians(-cannonAngle));
+        if (dx > 9) {
+            ctm = mat4();
+            ctm = mult(ctm, rotate(-cannonAngle,[0,0,1]));
+            ctm = mult(ctm, scale(vec3(0.1, 0.5, 0.1)));
+            ctm = mult(translate(18-dx, dy, 0), ctm);
+        }
+        else if (dx < -9) {
+            ctm = mat4();
+            ctm = mult(ctm, rotate(-cannonAngle,[0,0,1]));
+            ctm = mult(ctm, scale(vec3(0.1, 0.5, 0.1)));
+            ctm = mult(translate(-18-dx, dy, 0), ctm);
+        }
+        else {
+            ctm = mat4();
+            ctm = mult(ctm, rotate(cannonAngle,[0,0,1]));
+            ctm = mult(ctm, scale(vec3(0.1, 0.5, 0.1)));
+            ctm = mult(translate(dx, dy, 0), ctm);
+        }
         gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, numVertices);
     }
@@ -145,30 +165,77 @@ function render() {
             playingField[j][k].detect = false;
 
             //odd row
-            if (playingField[j].length%2 && playingField[j+1] != null)
-                if (playingField[j+1][k].draw && playingField[j+1][k+1].draw)
-                    continue;
+            if (playingField[j].length%2 && playingField[j+1] != null) {
+                if (playingField[j+1][k].draw && playingField[j+1][k+1].draw) {
+                    if (k == 0 && playingField[j][k+1].draw)
+                        continue;
+                    else if (k == playingField[j].length-1 && playingField[j][k-1].draw)
+                        continue;
+                    else if (playingField[j][k-1].draw && playingField[j][k+1].draw)
+                        continue;
+                }
+            }
 
             //even row
             if (playingField[j].length%2 == 0 && playingField[j+1] != null) {
                 if (k == 0) {
-                    if (playingField[j+1][k].draw)
+                    if (playingField[j][k+1].draw && playingField[j+1][k].draw)
                         continue;
-                } else if (k == playingField[j].length-1) {
-                    if (playingField[j+1][k-1].draw)
+                }
+                else if (k == playingField[j].length-1) {
+                    if (playingField[j][k-1].draw && playingField[j+1][k-1].draw)
                         continue;
-                } else if (playingField[j+1][k].draw && playingField[j+1][k-1].draw) {
-                    continue;
+                }
+                else if (playingField[j+1][k-1].draw && playingField[j+1][k].draw) {
+                    if (playingField[j][k-1].draw && playingField[j][k+1].draw)
+                        continue;
                 }
             }
 
-            //collision detected
-            playingField[j][k].detect = true;
-            if (playingField[j][k].draw
-                && (currBubble.x - playingField[j][k].x) * (currBubble.x - playingField[j][k].x)
-                 + (currBubble.y - playingField[j][k].y) * (currBubble.y - playingField[j][k].y)
-                <= 3) {
-                addRowBottom();
+            //collision handling
+            // playingField[j][k].detect = true;
+            var dx = currBubble.x.toFixed(1) - playingField[j][k].x;
+            var dy = currBubble.y.toFixed(1) - playingField[j][k].y;
+            if (playingField[j][k].draw && dx * dx + dy * dy <= 3) {
+                if (dx > 0) {
+                    if (dy > -1 && dy < 1) {
+                        copy(playingField[j][k+1], currBubble);
+                    }
+                    else if (dy > 1) {
+                        if (playingField[j].length % 2)
+                            copy(playingField[j-1][k+1], currBubble);
+                        else
+                            copy(playingField[j-1][k], currBubble);
+                    }
+                    else {
+                        if (playingField[j+1] == null)
+                            addRowBottom();
+                        if (playingField[j].length % 2)
+                            copy(playingField[j+1][k+1], currBubble);
+                        else
+                            copy(playingField[j+1][k], currBubble);
+                    }
+                }
+                else {
+                    if (dy > -1 && dy < 1) {
+                        copy(playingField[j][k-1], currBubble);
+                    }
+                    else if (dy > 1) {
+                        if (playingField[j].length % 2)
+                            copy(playingField[j-1][k], currBubble);
+                        else
+                            copy(playingField[j-1][k-1], currBubble);
+                    }
+                    else {
+                        if (playingField[j+1] == null)
+                            addRowBottom();
+                        if (playingField[j].length % 2)
+                            copy(playingField[j+1][k], currBubble);
+                        else
+                            copy(playingField[j+1][k-1], currBubble);
+                    }
+                }
+
                 currBubble.x = 0;
                 currBubble.y = 0;
                 currBubble.dx = 0;
