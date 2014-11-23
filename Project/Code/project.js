@@ -1,3 +1,4 @@
+var canvas;
 var gl;
 var vColor;
 
@@ -32,21 +33,23 @@ var maxRows = 10;
 var playingField = Array(maxRows);
 var upperLeft = [-9, 19];
 var lowerRight = [9, 1];
-var currBubble = new Bubble();
-var nextBubble = new Bubble();
+var currBubble = new Bubble(0,0);
+var nextBubble = new Bubble(lowerRight[0],lowerRight[1]);
 
 // keyboard controls
 document.addEventListener('keydown', function(event) {
     switch(event.keyCode) {
         case 32: // space
             // TODO: shoot bubble
-            newBubble();
+            fire();
             break;
         case 39: // right arrow
-            cannonAngle++;
+            if (cannonAngle > -85)
+                cannonAngle -= 4;
             break;
         case 37: // left arrow
-        	cannonAngle--;
+        	if (cannonAngle < 85)
+                cannonAngle += 4;
             break;
         // TODO: pause/unpause?
         //		 restart?
@@ -55,7 +58,7 @@ document.addEventListener('keydown', function(event) {
 });
 
 window.onload = function init() {
-	var canvas = document.getElementById("gl-canvas");
+	canvas = document.getElementById("gl-canvas");
 	gl = WebGLUtils.setupWebGL(canvas);
 	if(!gl){alert("WebGL isn't available");}
 
@@ -72,7 +75,7 @@ window.onload = function init() {
 
 	// add new row every time interval
 	addRow();
-	window.setInterval(addRow, 4000);
+	window.setInterval(addRow, 3000);
 
 	// link vColor on js to html
 	vColor = gl.getUniformLocation(program, "vColor");
@@ -101,33 +104,84 @@ function render() {
 	gl.uniformMatrix4fv(projectionMatrix, false, flatten(pMatrix));
 
 	ctm = mat4();
-
+    ctm = mult(ctm, rotate(cannonAngle,[0,0,1]));
 	// render cannon
 	gl.uniform4fv(vColor, cannonColor);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonPts), gl.STATIC_DRAW);
 	gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, numVertices);
 
+    gl.uniform4fv(vColor, vec4(0.5, 0.5, 0.5, 1));
+    ctm = mult(ctm, scale(vec3(0.1, 1.0, 0.1)));
+    for (var i = 0; i < 10; i++) {
+        ctm = mult(translate(2 * Math.sin(radians(-cannonAngle)), 2 * Math.cos(radians(-cannonAngle)), 0), ctm);
+        gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, numVertices);
+    }
+
 	// render playing field
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(bubblePts), gl.STATIC_DRAW);
-	y = upperLeft[1];
-	for (var j = numRows-1; j >= 0; j--) {
-		var x = upperLeft[0];
-
-		// Stagger every other row
-		if(playingField[j].length != numCols)
-			x += 1;
-
+	for (var j = 0; j < numRows; j++) {
 		for (var k = 0; k < playingField[j].length; k++) {
-			drawBubble(playingField[j][k].color, vec3(x, y, 0));
-		    x += 2;
+			drawBubble(playingField[j][k]);
 		}
-	    y -= 1.7;
 	}
 
-	// render current and next bubble
-	drawBubble(currBubble.color, vec3(0, 0, 0));
-	drawBubble(nextBubble.color, vec3(lowerRight[0], lowerRight[1], 0));
+    //increment ball slowly so it is drawn when it hits the side
+    for (var i = 0; i < 10; i++) {
+        currBubble.x += currBubble.dx/10;
+        currBubble.y += currBubble.dy/10;
+        if (currBubble.x > 9 || currBubble.x < -9) {
+            currBubble.dx *= -1;
+            drawBubble(currBubble);
+        }
+    }
+
+    //check for collisions
+    collision:
+    for (var j = numRows-1; j >= 0; j--) {
+        for (var k = 0; k < playingField[j].length; k++) {
+            //skip bubbles that do not need to be checked
+            playingField[j][k].detect = false;
+
+            //odd row
+            if (playingField[j].length%2 && playingField[j+1] != null)
+                if (playingField[j+1][k].draw && playingField[j+1][k+1].draw)
+                    continue;
+
+            //even row
+            if (playingField[j].length%2 == 0 && playingField[j+1] != null) {
+                if (k == 0) {
+                    if (playingField[j+1][k].draw)
+                        continue;
+                } else if (k == playingField[j].length-1) {
+                    if (playingField[j+1][k-1].draw)
+                        continue;
+                } else if (playingField[j+1][k].draw && playingField[j+1][k-1].draw) {
+                    continue;
+                }
+            }
+
+            //collision detected
+            playingField[j][k].detect = true;
+            if (playingField[j][k].draw
+                && (currBubble.x - playingField[j][k].x) * (currBubble.x - playingField[j][k].x)
+                 + (currBubble.y - playingField[j][k].y) * (currBubble.y - playingField[j][k].y)
+                <= 3) {
+                addRowBottom();
+                currBubble.x = 0;
+                currBubble.y = 0;
+                currBubble.dx = 0;
+                currBubble.dy = 0;
+                currBubble.color = nextBubble.color;
+                nextBubble.color = colors[Math.floor(Math.random() * colors.length)];
+                break collision;
+            }
+        }
+    }
+
+    drawBubble(currBubble);
+    drawBubble(nextBubble);
 
 	window.requestAnimFrame(render);
 }
@@ -136,29 +190,29 @@ function render() {
 
 function triangle(a, b, c) {
      bubblePts.push(a);
-     bubblePts.push(b);      
+     bubblePts.push(b);
      bubblePts.push(c);
      index += 3;
 }
 
 function divideTriangle(a, b, c, count) {
-    if ( count > 0 ) {
-                
-        var ab = mix( a, b, 0.5);
-        var ac = mix( a, c, 0.5);
-        var bc = mix( b, c, 0.5);
-                
+    if (count > 0) {
+
+        var ab = mix(a, b, 0.5);
+        var ac = mix(a, c, 0.5);
+        var bc = mix(b, c, 0.5);
+
         ab = normalize(ab, true);
         ac = normalize(ac, true);
         bc = normalize(bc, true);
-                                
-        divideTriangle( a, ab, ac, count - 1 );
-        divideTriangle( ab, b, bc, count - 1 );
-        divideTriangle( bc, c, ac, count - 1 );
-        divideTriangle( ab, bc, ac, count - 1 );
+
+        divideTriangle(a, ab, ac, count - 1);
+        divideTriangle(ab, b, bc, count - 1);
+        divideTriangle(bc, c, ac, count - 1);
+        divideTriangle(ab, bc, ac, count - 1);
     }
-    else { 
-        triangle( a, b, c );
+    else {
+        triangle(a, b, c);
     }
 }
 
@@ -170,7 +224,6 @@ function tetrahedron(a, b, c, d, n) {
 }
 
 // Functions for generating cube vertices
-
 function cannon() {
 	quad(1, 0, 3, 2);
 	quad(2, 3, 7, 6);
@@ -183,12 +236,12 @@ function cannon() {
 function quad(a, b, c, d) {
 	 var vertices = [vec4(-1, 0, 0, 1),
     				 vec4(-1, 2, 0, 1),
-        			 vec4( 1, 2, 0 ,1),
-        			 vec4( 1, 0, 0, 1),
+        			 vec4(1, 2, 0 ,1),
+        			 vec4(1, 0, 0, 1),
         			 vec4(-1, 0, 0, 1),
         			 vec4(-1, 2, 0, 1),
-        			 vec4( 1, 2, 0 ,1),
-        			 vec4( 1, 0, 0 ,1)];
+        			 vec4(1, 2, 0 ,1),
+        			 vec4(1, 0, 0 ,1)];
 
 	var indices = [a, b, c, a, c, d];
 
