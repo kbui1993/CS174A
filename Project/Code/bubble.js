@@ -78,12 +78,10 @@ function fire() {
 }
 
 function drawBubble(bubble) {
-	// if (!bubble.draw)
-	// 	return;
+	if (!bubble.draw)
+		return;
 	var translation = vec3(bubble.x, bubble.y, 0);
 	var color = bubble.color;
-	if (!bubble.draw)
-		color = [0, 0, 0, 1];
 	if (bubble.detect) {
 		color = [0, 0, 0, 1];
 	}
