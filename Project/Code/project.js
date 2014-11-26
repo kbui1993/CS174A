@@ -55,7 +55,10 @@ document.addEventListener('keydown', function(event) {
             break;
         case 13:
             stop++;
-            console.log(stop);
+            break;
+        case 83:
+            currBubble.color = nextBubble.color;
+            nextBubble.color = colors[Math.floor(Math.random() * colors.length)];
             break;
         // TODO: pause/unpause?
         //		 restart?
