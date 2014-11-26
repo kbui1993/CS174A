@@ -14,35 +14,38 @@ function copy(x, y) {
 }
 
 function addRow() {
-	if (numRows == maxRows) {
-		// TO DO: game over
-		return;
-	}
-
-	// generate new row
-	var newRow;
-	if(playingField[0] == null || playingField[0].length % 2)
-		newRow = Array(numCols);
-	else
-		newRow = Array(numCols-1);
-
-	// Stagger every other row
-	for (var i = 0; i < newRow.length; i++) {
-		// newRow[i] = new Bubble(2*i+upperLeft[0], upperLeft[1]);
-		newRow[i] = new Bubble(2 * i + upperLeft[0] + numCols - newRow.length, upperLeft[1]);
-	}
-
-	// move current rows down
-	for (var i = numRows; i > 0; i--) {
-		for (var j = 0; j < playingField[i-1].length; j++) {
-			playingField[i-1][j].y -= 1.7;
+	if(stop%2 == 0)
+	{
+		if (numRows == maxRows) {
+			// TO DO: game over
+			return;
 		}
-		playingField[i] = playingField[i-1];
-	}
 
-	// add new row to top of playing field
-	playingField[0] = newRow;
-	numRows++;
+		// generate new row
+		var newRow;
+		if(playingField[0] == null || playingField[0].length % 2)
+			newRow = Array(numCols);
+		else
+			newRow = Array(numCols-1);
+
+		// Stagger every other row
+		for (var i = 0; i < newRow.length; i++) {
+			// newRow[i] = new Bubble(2*i+upperLeft[0], upperLeft[1]);
+			newRow[i] = new Bubble(2 * i + upperLeft[0] + numCols - newRow.length, upperLeft[1]);
+		}
+
+		// move current rows down
+		for (var i = numRows; i > 0; i--) {
+			for (var j = 0; j < playingField[i-1].length; j++) {
+				playingField[i-1][j].y -= 1.7;
+			}
+			playingField[i] = playingField[i-1];
+		}
+
+		// add new row to top of playing field
+		playingField[0] = newRow;
+		numRows++;
+	}
 }
 
 function addRowBottom() {

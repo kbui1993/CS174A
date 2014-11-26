@@ -36,6 +36,8 @@ var lowerRight = [9, 1];
 var currBubble = new Bubble(0,0);
 var nextBubble = new Bubble(lowerRight[0],lowerRight[1]);
 
+var stop = 0;
+
 // keyboard controls
 document.addEventListener('keydown', function(event) {
     switch(event.keyCode) {
@@ -50,6 +52,10 @@ document.addEventListener('keydown', function(event) {
         case 37: // left arrow
         	if (cannonAngle < 85)
                 cannonAngle += 3;
+            break;
+        case 13:
+            stop++;
+            console.log(stop);
             break;
         // TODO: pause/unpause?
         //		 restart?
@@ -75,8 +81,8 @@ window.onload = function init() {
 
 	// add new row every time interval
 	addRow();
-	window.setInterval(addRow, 10000);
-
+    window.setInterval(addRow, 10000);
+	
 	// link vColor on js to html
 	vColor = gl.getUniformLocation(program, "vColor");
 
@@ -98,6 +104,7 @@ window.onload = function init() {
 
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
 
 	// set up camera view
 	pMatrix = ortho(-10, 10, 0, 20, -10, 10);
