@@ -53,12 +53,20 @@ document.addEventListener('keydown', function(event) {
         	if (cannonAngle < 85)
                 cannonAngle += 3;
             break;
-        case 13:
+        case 13: // pause the game
             stop++;
             break;
-        case 83:
+        case 83: //skip color
             currBubble.color = nextBubble.color;
             nextBubble.color = colors[Math.floor(Math.random() * colors.length)];
+            break;
+        case 82: //restart game
+            for(var i = 0; i < maxRows; i++)
+            {
+                playingField[i] = undefined;
+            }
+            numRows = 0;
+            addRow();
             break;
         // TODO: pause/unpause?
         //		 restart?
