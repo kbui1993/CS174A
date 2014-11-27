@@ -36,8 +36,14 @@ var lowerRight = [9, 1];
 var currBubble = new Bubble(0,0);
 var nextBubble = new Bubble(lowerRight[0],lowerRight[1]);
 
+//adding sound and music
 var snd = new Audio("Ding.wav");
+var music = new Audio("GrapeGarden.mp3");
 
+//playing music
+music.play();
+
+//variable for pausing
 var stop = 0;
 
 // keyboard controls
@@ -59,6 +65,14 @@ document.addEventListener('keydown', function(event) {
             break;
         case 13: // pause the game
             stop++;
+            if(stop %2 == 1)
+            {
+                music.pause();
+            }
+            else
+            {
+                music.play();
+            }
             break;
         case 83: //skip color
             currBubble.color = nextBubble.color;
@@ -119,6 +133,20 @@ window.onload = function init() {
 
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    //music looping
+    if (typeof music.loop == 'boolean')
+    {
+        music.loop = true;
+    }
+    else
+    {
+        music.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play();
+        }, false);
+        music.play();
+    }
 
 
 	// set up camera view
