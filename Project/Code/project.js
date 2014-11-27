@@ -36,6 +36,8 @@ var lowerRight = [9, 1];
 var currBubble = new Bubble(0,0);
 var nextBubble = new Bubble(lowerRight[0],lowerRight[1]);
 
+var snd = new Audio("Ding.wav");
+
 var stop = 0;
 
 // keyboard controls
@@ -43,7 +45,9 @@ document.addEventListener('keydown', function(event) {
     switch(event.keyCode) {
         case 32: // space
             // TODO: shoot bubble
+            snd.play();
             fire();
+            snd.currentTime = 0;
             break;
         case 39: // right arrow
             if (cannonAngle > -85)
