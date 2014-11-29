@@ -36,21 +36,25 @@ var lowerRight = [9, 1];
 var currBubble = new Bubble(0,0);
 var nextBubble = new Bubble(lowerRight[0],lowerRight[1]);
 
-//adding sound and music
+// game variables
+var pause = false;
+var score = 0;
+var scoreLength = 5;
+var level = 1;
+var pointsPerLevel = 30;
+var timer;
+var initialInterval = 12000;
+var pointsPerBubble = 10;
+
+// sound variables
 var snd = new Audio("Ding.wav");
 var music = new Audio("GrapeGarden.mp3");
-
-//playing music
-music.play();
-
-//variable for pausing
-var stop = 0;
+var pop = new Audio("pop.wav");
 
 // keyboard controls
 document.addEventListener('keydown', function(event) {
     switch(event.keyCode) {
-        case 32: // space
-            // TODO: shoot bubble
+        case 32: // space - shoot bubble
             snd.play();
             fire();
             snd.currentTime = 0;
@@ -63,32 +67,26 @@ document.addEventListener('keydown', function(event) {
         	if (cannonAngle < 85)
                 cannonAngle += 3;
             break;
-        case 13: // pause the game
-            stop++;
-            if(stop %2 == 1)
-            {
+        case 80: // p - pause game
+            pause = !pause;
+            if (pause)
                 music.pause();
-            }
             else
-            {
                 music.play();
-            }
             break;
-        case 83: //skip color
+        case 83: // skip color
             currBubble.color = nextBubble.color;
             nextBubble.color = colors[Math.floor(Math.random() * colors.length)];
             break;
-        case 82: //restart game
-            for(var i = 0; i < maxRows; i++)
-            {
+        case 82: // r - restart game
+            for(var i = 0; i < maxRows; i++) {
                 playingField[i] = undefined;
             }
             numRows = 0;
+            score = 0;
+            level = 1;
             addRow();
             break;
-        // TODO: pause/unpause?
-        //		 restart?
-        //		 reshuffle if stuck?
     }
 });
 
@@ -104,13 +102,15 @@ window.onload = function init() {
 	program = initShaders(gl, "vertex-shader", "fragment-shader");
 	gl.useProgram(program);
 
+    music.play();
+
 	// generate vertices
 	cannon();
 	tetrahedron(va, vb, vc, vd, 3);
 
 	// add new row every time interval
 	addRow();
-    window.setInterval(addRow, 10000);
+    timer = window.setInterval(addRow, initialInterval);
 	
 	// link vColor on js to html
 	vColor = gl.getUniformLocation(program, "vColor");
@@ -134,20 +134,17 @@ window.onload = function init() {
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    //music looping
-    if (typeof music.loop == 'boolean')
-    {
+    // music looping
+    if (typeof music.loop == 'boolean') {
         music.loop = true;
     }
-    else
-    {
+    else {
         music.addEventListener('ended', function() {
             this.currentTime = 0;
             this.play();
         }, false);
         music.play();
     }
-
 
 	// set up camera view
 	pMatrix = ortho(-10, 10, 0, 20, -10, 10);
@@ -194,10 +191,11 @@ function render() {
 	for (var j = 0; j < numRows; j++) {
 		for (var k = 0; k < playingField[j].length; k++) {
 			drawBubble(playingField[j][k]);
+            playingField[j][k].match = false;
 		}
 	}
 
-    //increment ball slowly so it is drawn when it hits the side
+    // increment ball slowly so it is drawn when it hits the side
     for (var i = 0; i < 10; i++) {
         currBubble.x += currBubble.dx/10;
         currBubble.y += currBubble.dy/10;
@@ -207,7 +205,7 @@ function render() {
         }
     }
 
-    //check for collisions
+    // check for collisions
     collision:
     for (var j = numRows-1; j >= 0; j--) {
         for (var k = 0; k < playingField[j].length; k++) {
@@ -249,11 +247,11 @@ function render() {
             if (playingField[j][k].draw && dx * dx + dy * dy <= 3) {
                 if (dx > 0) {
                     if (dy > -1 && dy < 1) {
-                        copy(playingField[j][k+1], currBubble);
+                        copy(j, k+1, currBubble);
                     }
                     else if (dy > 1) {
                         if (playingField[j].length % 2)
-                            copy(playingField[j-1][k+1], currBubble);
+                            copy(j-1, k+1, currBubble);
                         else
                             copy(playingField[j-1][k], currBubble);
                     }
@@ -261,18 +259,18 @@ function render() {
                         if (playingField[j+1] == null)
                             addRowBottom();
                         if (playingField[j].length % 2)
-                            copy(playingField[j+1][k+1], currBubble);
+                            copy(j+1, k+1, currBubble);
                         else
-                            copy(playingField[j+1][k], currBubble);
+                            copy(j+1, k, currBubble);
                     }
                 }
                 else {
                     if (dy > -1 && dy < 1) {
-                        copy(playingField[j][k-1], currBubble);
+                        copy(j, k-1, currBubble);
                     }
                     else if (dy > 1) {
                         if (playingField[j].length % 2)
-                            copy(playingField[j-1][k], currBubble);
+                            copy(j-1, k, currBubble);
                         else
                             copy(playingField[j-1][k-1], currBubble);
                     }
@@ -280,9 +278,9 @@ function render() {
                         if (playingField[j+1] == null)
                             addRowBottom();
                         if (playingField[j].length % 2)
-                            copy(playingField[j+1][k], currBubble);
+                            copy(j+1, k, currBubble);
                         else
-                            copy(playingField[j+1][k-1], currBubble);
+                            copy(j+1, k-1, currBubble);
                     }
                 }
 
@@ -300,7 +298,27 @@ function render() {
     drawBubble(currBubble);
     drawBubble(nextBubble);
 
+    // display level and score
+    document.getElementById('level').innerHTML = "LEVEL " + level + ": ";
+    document.getElementById('score').innerHTML = (Array(scoreLength).join("0") + score).slice(-scoreLength);
+
 	window.requestAnimFrame(render);
+}
+
+// Game functions
+
+// TO DO: handle game over - pop remaining bubbles? restart?
+function gameOver() {
+}
+
+function updateScore() {
+    score += pointsPerBubble;
+
+    if(score > level*pointsPerLevel*pointsPerBubble) {
+        level++;
+        clearInterval(timer);
+        timer = setInterval(addRow, initialInterval-2000*level)
+    }
 }
 
 // Functions for generating sphere vertices
@@ -351,14 +369,14 @@ function cannon() {
 }
 
 function quad(a, b, c, d) {
-	 var vertices = [vec4(-1, 0, 0, 1),
-    				 vec4(-1, 2, 0, 1),
-        			 vec4(1, 2, 0 ,1),
-        			 vec4(1, 0, 0, 1),
-        			 vec4(-1, 0, 0, 1),
-        			 vec4(-1, 2, 0, 1),
-        			 vec4(1, 2, 0 ,1),
-        			 vec4(1, 0, 0 ,1)];
+	 var vertices = [vec4(-1, -1, 0, 1),
+    				 vec4(-1,  2, 0, 1),
+        			 vec4( 1,  2, 0 ,1),
+        			 vec4( 1, -1, 0, 1),
+        			 vec4(-1, -1, 0, 1),
+        			 vec4(-1,  2, 0, 1),
+        			 vec4( 1,  2, 0 ,1),
+        			 vec4( 1, -1, 0 ,1)];
 
 	var indices = [a, b, c, a, c, d];
 
