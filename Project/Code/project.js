@@ -192,6 +192,7 @@ function render() {
 		for (var k = 0; k < playingField[j].length; k++) {
 			drawBubble(playingField[j][k]);
             playingField[j][k].match = false;
+            playingField[j][k].connected = false;
 		}
 	}
 
@@ -307,7 +308,7 @@ function render() {
 
 // Game functions
 
-// TO DO: handle game over - pop remaining bubbles? restart?
+// TO DO: handle game over - pop remaining bubbles? restart option?
 function gameOver() {
 }
 

@@ -7,6 +7,7 @@ function Bubble(x,y) {
     this.detect = false; // used to color if detection bubble
     this.draw = true;
     this.match = false;
+    this.connected = false;
 }
 
 function copy(j, k, b) {
@@ -36,8 +37,7 @@ function numMatches(j, k, color) {
 function numMatchesHelper(j, k, color) {
 	var count = 0;
 
-	if (playingField[j][k].match == false && playingField[j][k].draw == true
-		&& playingField[j][k].color == color) {
+	if (!playingField[j][k].match && playingField[j][k].color == color) {
 		playingField[j][k].match = true;
 		count++;
 
@@ -45,77 +45,122 @@ function numMatchesHelper(j, k, color) {
 
 		for (var i = 0; i < neighbors.length; i++)
 			count += numMatchesHelper(neighbors[i][0], neighbors[i][1], color);
-
 	}
 	return count;
 }
 
 function getAdjacentBubbles(j, k) {
-	var result = [];
-
+	var result = [];	
 	var cols = playingField[j].length;
 
 	if (j > 0) { // get bubbles above
 		if (k < 9)
-			result.push([j-1, k]);
+			result = getAdjacentHelper(j-1, k, result);
 		if (cols%2 == 0 && k > 0) // even row
-			result.push([j-1, k-1]);
+			result = getAdjacentHelper(j-1, k-1, result);
 		else if (k < cols) // odd row
-			result.push([j-1, k+1]);
+			result = getAdjacentHelper(j-1, k+1, result);
 	}
 	if (j < numRows-1 ) { // get bubbles below
 		if (k < 9)
-			result.push([j+1, k]);
-		if (cols%2 == 0 && k > 0)
-			result.push([j+1, k-1]);
-		else if (k < cols)
-			result.push([j+1, k+1]);
+			result = getAdjacentHelper(j+1, k, result);
+		if (cols%2 == 0 && k > 0) // even row
+			result = getAdjacentHelper(j+1, k-1, result);
+		else if (k < cols) // odd row
+			result = getAdjacentHelper(j+1, k+1, result);
 	}
 	if (k > 0) // get left and right bubbles
-		result.push([j, k-1]);
+		result = getAdjacentHelper(j, k-1, result);
 	if (k < cols-1)
-		result.push([j, k+1]);
+		result = getAdjacentHelper(j, k+1, result);
+
+	return result;
+}
+
+// add bubble if visible
+function getAdjacentHelper(j, k, result) {
+	if(playingField[j][k].draw)
+		result.push([j, k]);
 
 	return result;
 }
 
 // TO DO: add 3d effects when removing
 function removeBubbles() {
+	// remove matched bubbles
 	for (var j = 0; j < numRows; j++) {
 		for (var k = 0; k < playingField[j].length; k++) {
-			if(playingField[j][k].match == true) {
+			if(playingField[j][k].match) {
             	playingField[j][k].draw = false;
             	updateScore();
 			}
 		}
 	}
 
-	// Remove any empty rows
+	// remove any empty rows
 	var rows = numRows;
 	var emptyRowFound = false;
 
 	for (var j = 0; j < rows; j++) {
 		var assumeEmpty = true;
 
-		if(!emptyRowFound) {
+		if (!emptyRowFound) {
 			for (var k = 0; k < playingField[j].length; k++) {
-				if(playingField[j][k].draw == true) {
+				if (playingField[j][k].draw) {
 	            	assumeEmpty = false;
 	            	break;
 				}
 			}
 			// empty row found if assumption still true
-			if(assumeEmpty)
+			if (assumeEmpty)
 				emptyRowFound = true;
 		}
 		// remove row and all rows underneath
-		if(emptyRowFound) {
+		if (emptyRowFound) {
 			playingField[j] = undefined;
 			numRows--;
 		}
 	}
 
-	// TO DO: remove island bubbles
+	// trace all reachable bubbles from top row
+	for (var k = 0; k < playingField[0].length; k++) {
+		if (playingField[0][k].draw) {
+			playingField[0][k].connected = true;
+			var neighbors = getAdjacentBubbles(0, k);
+
+			for (var i = 0; i < neighbors.length; i++) {
+				checkConnected(neighbors[i][0],neighbors[i][1]);
+			}
+		}
+	}
+
+	// remove unconnected bubbles
+	for (var j = 0; j < numRows; j++) {
+		for (var k = 0; k < playingField[j].length; k++) {
+			if (playingField[j][k].draw && !playingField[j][k].connected) {
+				playingField[j][k].draw = false;
+				updateScore();
+			}
+		}
+	}
+
+	// TO DO: handle end game if no bubbles left
+}
+
+function checkConnected(j, k) {
+	playingField[j][k].connected = true;
+
+	var neighbors = getAdjacentBubbles(j, k);
+
+	for (var i = 0; i < neighbors.length; i++) {
+		var nj = neighbors[i][0];
+		var nk = neighbors[i][1];
+
+		if (!playingField[nj][nk].connected) {
+			playingField[nj][nk].connected = true;
+			checkConnected(nj, nk);
+		}
+	}
 }
 
 function addRow() {
