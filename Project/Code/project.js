@@ -96,7 +96,7 @@ window.onload = function init() {
 
     // add new row every time interval
     addRow();
-    timer = window.setInterval(addRow, initialInterval);
+    timer = setInterval(addRow, initialInterval);
     
     // link vColor on js to html
     vColor = gl.getUniformLocation(program, "vColor");
@@ -227,11 +227,11 @@ function render() {
     collision:
     for (var j = numRows-1; j >= 0; j--) {
         for (var k = 0; k < playingField[j].length; k++) {
-            //skip bubbles that do not need to be checked
-            playingField[j][k].detect = false;
+            // skip bubbles that do not need to be checked
+            // playingField[j][k].detect = false;
 
-            //odd row
-            if (playingField[j].length%2 && playingField[j+1] != null) {
+            // odd row
+            if (playingField[j].length % 2 && playingField[j+1] != null && j!=0) {
                 if (playingField[j+1][k].draw && playingField[j+1][k+1].draw) {
                     if (k == 0 && playingField[j][k+1].draw)
                         continue;
@@ -242,8 +242,8 @@ function render() {
                 }
             }
 
-            //even row
-            if (playingField[j].length%2 == 0 && playingField[j+1] != null) {
+            // even row
+            if (playingField[j].length % 2 == 0 && playingField[j+1] != null && j!=0) {
                 if (k == 0) {
                     if (playingField[j][k+1].draw && playingField[j+1][k].draw)
                         continue;
@@ -258,11 +258,15 @@ function render() {
                 }
             }
 
-            //collision handling
+            // collision handling
             // playingField[j][k].detect = true;
             var dx = currBubble.x.toFixed(1) - playingField[j][k].x;
             var dy = currBubble.y.toFixed(1) - playingField[j][k].y;
             if (playingField[j][k].draw && dx * dx + dy * dy <= 3) {
+                if (currBubble.x > 9)
+                    currBubble.x -= 1;
+                if (currBubble.x < -9)
+                    currBubble.x += 1;
                 if (dx > 0) {
                     if (dy > -1 && dy < 1) {
                         copy(j, k+1, currBubble);
@@ -271,7 +275,7 @@ function render() {
                         if (playingField[j].length % 2)
                             copy(j-1, k+1, currBubble);
                         else
-                            copy(playingField[j-1][k], currBubble);
+                            copy(j-1, k, currBubble);
                     }
                     else {
                         if (playingField[j+1] == null)
@@ -290,7 +294,7 @@ function render() {
                         if (playingField[j].length % 2)
                             copy(j-1, k, currBubble);
                         else
-                            copy(playingField[j-1][k-1], currBubble);
+                            copy(j-1, k-1, currBubble);
                     }
                     else {
                         if (playingField[j+1] == null)
@@ -302,6 +306,16 @@ function render() {
                     }
                 }
 
+                currBubble.x = 0;
+                currBubble.y = 0;
+                currBubble.dx = 0;
+                currBubble.dy = 0;
+                currBubble.color = nextBubble.color;
+                nextBubble.color = colors[Math.floor(Math.random() * colors.length)];
+                break collision;
+            }
+            else if (j == 0 && dx * dx + dy * dy <= 2) {
+                copy(j, k, currBubble);
                 currBubble.x = 0;
                 currBubble.y = 0;
                 currBubble.dx = 0;
@@ -488,6 +502,9 @@ document.addEventListener('keydown', function(event) {
             for(var i = 0; i < maxRows; i++) {
                 playingField[i] = undefined;
             }
+            clearInterval(timer);
+            timer = setInterval(addRow, initialInterval);
+            cannonAngle = 0;
             numRows = 0;
             score = 0;
             level = 1;

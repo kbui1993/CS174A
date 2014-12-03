@@ -233,7 +233,7 @@ function drawBubble(bubble) {
 	var translation = vec3(bubble.x, bubble.y, 0);
 	var color = bubble.color;
 	if (bubble.detect) {
-		color = [0, 0, 0, 1];
+		color = [color[0],color[1],color[2],0.5];
 	}
 	ctm = mult(mat4(), translate(translation));
 	ctm = mult(ctm, scale(size));
