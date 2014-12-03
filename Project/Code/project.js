@@ -263,10 +263,14 @@ function render() {
             var dx = currBubble.x.toFixed(1) - playingField[j][k].x;
             var dy = currBubble.y.toFixed(1) - playingField[j][k].y;
             if (playingField[j][k].draw && dx * dx + dy * dy <= 3) {
-                if (currBubble.x > 9)
-                    currBubble.x -= 1;
-                if (currBubble.x < -9)
-                    currBubble.x += 1;
+                if (currBubble.x > 9) {
+                    currBubble.x -= 0.5;
+                    currBubble.y -= 0.5;
+                }
+                if (currBubble.x < -9) {
+                    currBubble.x += 0.5;
+                    currBubble.y -= 0.5;
+                }
                 if (dx > 0) {
                     if (dy > -1 && dy < 1) {
                         copy(j, k+1, currBubble);

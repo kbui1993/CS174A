@@ -165,6 +165,10 @@ function checkConnected(j, k) {
 
 function addRow() {
 	if (!pause) {
+		var dx = currBubble.dx;
+		var dy = currBubble.dy;
+		currBubble.dx = 0; currBubble.dy = 0;
+
 		if (numRows == maxRows) {
 			gameOver();
 			return;
@@ -193,6 +197,8 @@ function addRow() {
 		// add new row to top of playing field
 		playingField[0] = newRow;
 		numRows++;
+
+		currBubble.dx = dx; currBubble.dy = dy;
 	}
 }
 
