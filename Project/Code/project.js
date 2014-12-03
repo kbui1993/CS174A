@@ -2,6 +2,9 @@
 var canvas;
 var gl;
 
+var debugDetect = 0;
+var debugDraw = 0;
+
 //initializing color variable
 var vColor;
 
@@ -228,7 +231,7 @@ function render() {
     for (var j = numRows-1; j >= 0; j--) {
         for (var k = 0; k < playingField[j].length; k++) {
             // skip bubbles that do not need to be checked
-            // playingField[j][k].detect = false;
+            playingField[j][k].detect = false;
 
             // odd row
             if (playingField[j].length % 2 && playingField[j+1] != null && j!=0) {
@@ -259,7 +262,7 @@ function render() {
             }
 
             // collision handling
-            // playingField[j][k].detect = true;
+            playingField[j][k].detect = true;
             var dx = currBubble.x.toFixed(1) - playingField[j][k].x;
             var dy = currBubble.y.toFixed(1) - playingField[j][k].y;
             if (playingField[j][k].draw && dx * dx + dy * dy <= 3) {

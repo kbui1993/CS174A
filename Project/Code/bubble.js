@@ -234,12 +234,15 @@ function fire() {
 }
 
 function drawBubble(bubble) {
-	if (!bubble.draw)
+	if (!bubble.draw && !debugDraw)
 		return;
 	var translation = vec3(bubble.x, bubble.y, 0);
 	var color = bubble.color;
-	if (bubble.detect) {
-		color = [color[0],color[1],color[2],0.5];
+	if (debugDetect && bubble.detect) {
+		color = [bubble.color[0], bubble.color[1], bubble.color[2], 0.6];
+	}
+	if (!bubble.draw && debugDraw) {
+		color = [0, 0, 0, 0.5];
 	}
 	ctm = mult(mat4(), translate(translation));
 	ctm = mult(ctm, scale(size));
