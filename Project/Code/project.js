@@ -267,12 +267,10 @@ function render() {
             var dy = currBubble.y.toFixed(1) - playingField[j][k].y;
             if (playingField[j][k].draw && dx * dx + dy * dy <= 3) {
                 if (currBubble.x > 9) {
-                    currBubble.x -= 0.5;
-                    currBubble.y -= 0.5;
+                    dx *= -1;
                 }
                 if (currBubble.x < -9) {
-                    currBubble.x += 0.5;
-                    currBubble.y -= 0.5;
+                    dx *= -1;
                 }
                 if (dx > 0) {
                     if (dy > -1 && dy < 1) {
