@@ -16,7 +16,7 @@ var ctm, modelViewMatrix, projectionMatrix;
 
 // cannon variables
 var cannonAngle = 0;
-var cannonColor = vec4(0.7, 0.4, 0.0, 1.0);
+var cannonColor = vec4(1, 1, 1.0, 1.0);
 var numVertices = 36;
 var cannonPts = [];
 
@@ -158,7 +158,7 @@ function render() {
     gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonPts), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
-    var image1 = document.getElementById("texImage");
+    var image1 = document.getElementById("texImage3");
     configureTexture1(image1);
 
     gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
