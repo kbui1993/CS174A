@@ -1,72 +1,179 @@
 <!DOCTYPE html>
 <html>
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	
+	<!-- vertex shader -->
+	<script id="vertex-shader" type="x-shader/x-vertex">
+		attribute vec4 vPosition;
+		attribute vec2 vTexCoord;
+		attribute vec4 Color;
+		varying vec4 fColor;
+		varying vec2 fTexCoord;
+		uniform mat4 modelViewMatrix;
+		uniform mat4 projectionMatrix;
 
-<script id="vertex-shader" type="x-shader/x-vertex">
+		void main() {
+			fColor = Color;
+			fTexCoord = vTexCoord;
+			gl_Position = projectionMatrix*modelViewMatrix*vPosition;
+		}
+	</script>
 
-attribute vec4 vPosition;
-attribute vec2 vTexCoord;
-attribute vec4 Color;
+	<!-- fragment shader -->
+	<script id="fragment-shader" type="x-shader/x-fragment">
+		precision mediump float;
+		uniform vec4 vColor;
+		varying vec2 fTexCoord;
+		uniform sampler2D texture;
 
-varying vec4 fColor;
-varying vec2 fTexCoord;
+		void main() {
+			gl_FragColor = vColor*texture2D(texture, fTexCoord);
+		}
+	</script>
 
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
+	<script type = "text/javascript" src="../Common/webgl-utils.js"></script>
+	<script type = "text/javascript" src="../Common/initShaders.js"></script>
+	<script type = "text/javascript" src="../Common/MV.js"></script>
+	<script type = "text/javascript" src="../Common/jquery-1.11.1.min.js"></script>
+	<script type = "text/javascript" src="bubble.js"></script>
+	<script type = "text/javascript" src="game.js"></script>
+	<script type = "text/javascript" src="project.js"></script>
 
-void main() {
-	fColor = Color;
-	fTexCoord = vTexCoord;
-	gl_Position = projectionMatrix*modelViewMatrix*vPosition;
-}
-</script>
 
-<script id="fragment-shader" type="x-shader/x-fragment">
-precision mediump float;
-uniform vec4 vColor;
-varying vec2 fTexCoord;
-
-uniform sampler2D texture;
-
-void main() {
-	gl_FragColor = vColor*texture2D(texture, fTexCoord);
-}
-
-</script>
-
-<script type = "text/javascript" src="../Common/webgl-utils.js"></script>
-<script type = "text/javascript" src="../Common/initShaders.js"></script>
-<script type = "text/javascript" src="../Common/MV.js"></script>
-<script type = "text/javascript" src="bubble.js"></script>
-<script type = "text/javascript" src="project.js"></script>
-
+	<script type="text/javascript">
+	</script>
 </head>
 
 <style>
-body {
-	text-align: center;
-	margin-top: 50px;
-}
+	body {
+		text-align: center;
+		margin-top: 50px;
+		font-family: Tahoma, Geneva, sans-serif;
+		width: 512px;
+		margin-left: auto;
+		margin-right: auto;
+	}
 
-div {
-	position: relative;
-	margin-top: -35px;
-	margin-left: -310px;
-	z-index: 1;
-	font-family: Tahoma, Geneva, sans-serif;
-	font-size: 25px;
-	color: #002952;
-}
+	#wrapper {
+		position: relative;
+		margin-top: -440px;
+		z-index: 1;
+	}
+
+	h1 {
+		font-weight: bold;
+		margin-bottom: 25px;
+		font-size: 45px;
+		text-shadow: 0px 0px 6px #fff;
+	}
+
+	h2 {
+		text-shadow: 0px 0px 6px #fff;
+	}
+
+	button {
+		border: none;
+		border-radius: 5px;
+		color: white;
+		font-size: 20px;
+		opacity: 0.7;
+		width: 130px;
+		height: 45px;
+		margin-bottom: 20px;
+	}
+
+	button:hover {
+		opacity: 1;
+	}
+
+	#restart-btn:hover, #quit-btn:hover {
+		opacity: 0.8;
+	}
+
+	#start-btn {
+		background-color: #00F;
+	}
+
+	#info-btn {
+		background-color: #8A00B8;
+	}
+
+	#restart-btn {
+		background-color: #2EB8B8;
+		
+	}
+	#quit-btn {
+		background-color: #FF47A3;
+	}
+
+	.end {
+		display: none;
+	}
+
+	button.end {
+		opacity: 1;
+		border: 1px solid white;
+	}
+
+	#info {
+		opacity: 0.5;
+		background-color: #eee;
+		padding: 20px 60px;
+	}
+
+	#info p {
+		margin-top: 0;
+	}
+
+	#info span {
+		font-size:25px;
+	}
+
+	#stats {
+		display: none;
+		position: relative;
+		margin-top: 361px;
+		margin-left: -310px;
+		z-index: 1;
+		font-size: 25px;
+		color: #002952;
+		text-shadow: 0px 0px 6px white;
+	}
 </style>
 
 <body>
 	<canvas id="gl-canvas" width="512" height="512">
 		Oops...your browswer doesn't support the HTML5 canvas element
 	</canvas>
-	<img id = "texImage" src = "steel.jpg" hidden></img>
-	<img id = "texImage2" src = "transparent.png" hidden></img>
-	<img id = "texImage3" src = "wood.jpg" hidden></img>
-	<div>
-		<b id="level"></b><span id="score"></span>
+	<img id="texImage" src="texture/steel.jpg" hidden></img>
+	<img id="texImage2" src="texture/transparent.png" hidden></img>
+	<img id="texImage3" src="texture/wood.jpg" hidden></img>
+
+	<div id="wrapper">
+		<!-- placeholder for game title -->
+		<h1 class="begin"></h1>
+		<h1 class="end">Game Over!</h1>
+		<!-- placeholder for score -->
+		<h2 class="end"></h2>
+
+		<button id="start-btn" class="begin" onclick="start()">START</button><br />
+		<button id="info-btn" class="begin">INFO</button>
+		<button id="restart-btn" class="end" onclick="restart()" hidden>RESTART</button><br />
+		<button id="quit-btn" class="end" onclick="quit()" hidden>QUIT</button>
+
+
+		<div id="info" hidden>
+			<p>Score points by matching three or more bubbles before the playing field hits the cannon!</p>
+			<span><b>p</b>ause&nbsp;&nbsp;<b>r</b>estart&nbsp;&nbsp;<b>s</b>ound</span>
+		</div>
 	</div>
+
+	<div id="stats" hidden>
+		<b id="level"></b>
+		<span id="score"></span>
+	</div>
+	
 </body>
 </html>

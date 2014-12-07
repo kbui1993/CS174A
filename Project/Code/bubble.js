@@ -17,7 +17,7 @@ function copy(j, k, b) {
 	var matches = numMatches(j, k, b.color);
 
 	if (matches > 2) {
-		pop.play();
+		matchSound.play();
 		removeBubbles();
 	}
 }
@@ -117,7 +117,7 @@ function removeBubbles() {
 		}
 		// remove row and all rows underneath
 		if (emptyRowFound) {
-			playingField[j] = undefined;
+			playingField[j] = null;
 			numRows--;
 		}
 	}
@@ -143,8 +143,6 @@ function removeBubbles() {
 			}
 		}
 	}
-
-	// TO DO: handle end game if no bubbles left
 }
 
 function checkConnected(j, k) {
@@ -203,11 +201,6 @@ function addRow() {
 }
 
 function addRowBottom() {
-	if (numRows == maxRows) {
-		gameOver();
-		return;
-	}
-
 	// generate new row
 	var newRow;
 	if(playingField[numRows-1].length % 2)

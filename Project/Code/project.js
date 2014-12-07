@@ -1,14 +1,14 @@
-//setting up web GL variables
+// set up web GL variables
 var canvas;
 var gl;
 
 var debugDetect = 0;
 var debugDraw = 0;
 
-//initializing color variable
+// initialize color variable
 var vColor;
 
-//initializing buffers
+// initialize buffers
 var vBuffer, tBuffer;
 
 // matrix transformation variables
@@ -48,23 +48,26 @@ var nextBubble = new Bubble(lowerRight[0],lowerRight[1]);
 // game variables
 var pause = false;
 var score = 0;
-var scoreLength = 5;
+var scoreLength = 6;
 var level = 1;
 var pointsPerLevel = 30;
 var timer;
 var initialInterval = 12000;
 var pointsPerBubble = 10;
+var enableKeyControls = false;
 
 // sound variables
-var snd = new Audio("Ding.wav");
-var music = new Audio("GrapeGarden.mp3");
-var pop = new Audio("pop.wav");
+var sound = true;
+var fireSound = new Audio("sound/Ding.wav");
+var music = new Audio("sound/GrapeGarden.mp3");
+var matchSound = new Audio("sound/pop.wav");
+var dora = new Audio("sound/dora.mp3");
+var startSound = new Audio("sound/start.ogg");
 
-//intializing texture variables
+// intialize texture variables
 var texture;
 var texCoordsArray = [];
 var texSphere = [];
-
 var texCoord = [
     vec2(0,0),
     vec2(0,1),
@@ -72,34 +75,52 @@ var texCoord = [
     vec2(1,0)
 ];
 
-//main function
-window.onload = function init() {
+function start() {
+    // TO DO: change this so its not a hack
+    // link transformation matrices on js to html
+    modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
+    projectionMatrix = gl.getUniformLocation(program, "projectionMatrix");
 
-    //setting up canvas
+    $(".begin").hide();
+    restart();
+}
+
+// main function
+window.onload = function init() {
+    dora.play();
+
+    // initialize button hover handler
+    $("#info-btn").hover(function() {$("#info").fadeIn();},
+                         function() {$("#info").fadeOut(300);} 
+    );
+
+    // display colored game title
+    var title = "Bubble Blasters";
+    var html = "";
+    var fontColors = new Array("#FF3399", "#9900CC", "#0033CC", "#2EB8B8", "#FF9933");
+    
+    for (var i = 0; i < title.length; i++)
+        html += ("<span style=\"color:" + fontColors[(i % fontColors.length)] + ";\">" + title[i] + "</span>");
+    
+    $("h1.begin").html(html);
+
+    // set up canvas
     canvas = document.getElementById("gl-canvas");
     gl = WebGLUtils.setupWebGL(canvas);
     if(!gl){alert("WebGL isn't available");}
-
     gl.viewport(0,0, canvas.width, canvas.height);
     gl.clearColor(0.8, 0.9, 1.0, 1);
     gl.enable(gl.DEPTH_TEST);
 
-    //setting up shader
+    // set up shaders
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
-
-    //play music
-    music.play();
 
     // generate vertices
     cannon();
     textureCube(texCoordsArray, texCoord);
     textureSphere();
     tetrahedron(va, vb, vc, vd, 3);
-
-    // add new row every time interval
-    addRow();
-    timer = setInterval(addRow, initialInterval);
     
     // link vColor on js to html
     vColor = gl.getUniformLocation(program, "vColor");
@@ -107,25 +128,20 @@ window.onload = function init() {
     // create buffer for points
     vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    //gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonPts), gl.STATIC_DRAW);
     
-    //link vPosition from js to html
+    // link vPosition from js to html
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
     
-    //create texture buffer
+    // create texture buffer
     tBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     
-    //linking vTexCoord from js to html
+    // link vTexCoord from js to html
     var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
     gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vTexCoord);
-
-    // link transformation matrices on js to html
-    modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
-    projectionMatrix = gl.getUniformLocation(program, "projectionMatrix");
 
     setInterval(render,10);
 }
@@ -133,11 +149,10 @@ window.onload = function init() {
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // music looping
+    // loop music
     if (typeof music.loop == 'boolean') {
         music.loop = true;
-    }
-    else {
+    } else {
         music.addEventListener('ended', function() {
             this.currentTime = 0;
             this.play();
@@ -151,15 +166,13 @@ function render() {
     ctm = mat4();
     ctm = mult(ctm, rotate(cannonAngle,[0,0,1]));
 
-
     // render cannon
     gl.uniform4fv(vColor, cannonColor);
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonPts), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
-    var image1 = document.getElementById("texImage3");
-    configureTexture1(image1);
+    configureTexture1(document.getElementById("texImage3"));
 
     gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
     gl.drawArrays(gl.TRIANGLES, 0, numVertices);
@@ -168,11 +181,9 @@ function render() {
     gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonPts), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
-    var image2 = document.getElementById("texImage2");
-    configureTexture1(image2);
+    configureTexture1(document.getElementById("texImage2"));
 
-
-    //render line
+    // render line
     var dx = 0, dy = 0;
     gl.uniform4fv(vColor, vec4(0.5, 0.5, 0.5, 1));
     for (var i = 0; i < 15; i++) {
@@ -181,19 +192,19 @@ function render() {
         if (dx > 9) {
             ctm = mat4();
             ctm = mult(ctm, rotate(-cannonAngle,[0,0,1]));
-            ctm = mult(ctm, scale(vec3(0.1, 0.5, 0.1)));
+            ctm = mult(ctm, scale(vec3(0.06, 0.5, 0.1)));
             ctm = mult(translate(18-dx, dy, 0), ctm);
         }
         else if (dx < -9) {
             ctm = mat4();
             ctm = mult(ctm, rotate(-cannonAngle,[0,0,1]));
-            ctm = mult(ctm, scale(vec3(0.1, 0.5, 0.1)));
+            ctm = mult(ctm, scale(vec3(0.06, 0.5, 0.1)));
             ctm = mult(translate(-18-dx, dy, 0), ctm);
         }
         else {
             ctm = mat4();
             ctm = mult(ctm, rotate(cannonAngle,[0,0,1]));
-            ctm = mult(ctm, scale(vec3(0.1, 0.5, 0.1)));
+            ctm = mult(ctm, scale(vec3(0.06, 0.5, 0.1)));
             ctm = mult(translate(dx, dy, 0), ctm);
         }
         gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
@@ -205,8 +216,7 @@ function render() {
     gl.bufferData(gl.ARRAY_BUFFER, flatten(bubblePts), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(texSphere), gl.STATIC_DRAW);
-    var image1 = document.getElementById("texImage");
-    configureTexture1( image1 );
+    configureTexture1(document.getElementById("texImage"));
 
     for (var j = 0; j < numRows; j++) {
         for (var k = 0; k < playingField[j].length; k++) {
@@ -284,6 +294,10 @@ function render() {
                     }
                     else {
                         if (playingField[j+1] == null)
+                            if(numRows == maxRows) {
+                                gameOver();
+                                return;
+                            }
                             addRowBottom();
                         if (playingField[j].length % 2)
                             copy(j+1, k+1, currBubble);
@@ -303,6 +317,10 @@ function render() {
                     }
                     else {
                         if (playingField[j+1] == null)
+                            if(numRows == maxRows) {
+                                gameOver();
+                                return;
+                            }
                             addRowBottom();
                         if (playingField[j].length % 2)
                             copy(j+1, k, currBubble);
@@ -335,28 +353,12 @@ function render() {
     drawBubble(currBubble);
     drawBubble(nextBubble);
 
-    // display level and score
-    document.getElementById('level').innerHTML = "LEVEL " + level + ": ";
-    document.getElementById('score').innerHTML = (Array(scoreLength).join("0") + score).slice(-scoreLength);
+    // display stats
+    $('#level').html("Level " + level + ": ");
+    $('#score').html((Array(scoreLength).join("0") + score).slice(-scoreLength));
 }
 
-// Game functions
-
-// TO DO: handle game over - pop remaining bubbles? restart option?
-function gameOver() {
-}
-
-function updateScore() {
-    score += pointsPerBubble;
-
-    if(score > level*pointsPerLevel*pointsPerBubble) {
-        level++;
-        clearInterval(timer);
-        timer = setInterval(addRow, initialInterval-2000*level)
-    }
-}
-
-// Functions for generating cube vertices
+// functions for generating cube vertices
 function cannon() {
     quad(1, 0, 3, 2);
     quad(2, 3, 7, 6);
@@ -383,7 +385,7 @@ function quad(a, b, c, d) {
     }
 }
 
-// Functions for generating sphere vertices
+// functions for generating sphere vertices
 function triangle(a, b, c) {
      bubblePts.push(a);
      bubblePts.push(b);
@@ -419,7 +421,7 @@ function tetrahedron(a, b, c, d, n) {
     divideTriangle(a, c, d, n);
 }
 
-//configuring texture function
+// function to configure texture
 function configureTexture1( image ) {
     texture = gl.createTexture();
     gl.bindTexture( gl.TEXTURE_2D, texture );
@@ -435,9 +437,8 @@ function configureTexture1( image ) {
     gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
 }
 
-//function that push vertices for texture cube
-function texturequad(texture_array, texture_coord)
-{
+// function to push vertices for texture cube
+function texturequad(texture_array, texture_coord) {
     texture_array.push(texture_coord[0]);
     texture_array.push(texture_coord[1]);
     texture_array.push(texture_coord[2]); 
@@ -447,9 +448,8 @@ function texturequad(texture_array, texture_coord)
 
 }
 
-//function that creates vertices for texture cube
-function textureCube(texture_array, texture_coord)
-{
+// function to create vertices for texture cube
+function textureCube(texture_array, texture_coord) {
     texturequad(texture_array, texture_coord);
     texturequad(texture_array, texture_coord);
     texturequad(texture_array, texture_coord);
@@ -458,16 +458,13 @@ function textureCube(texture_array, texture_coord)
     texturequad(texture_array, texture_coord);
 }
 
-//generating texture coordinates for sphere
-function textureSphere()
-{
+// function to generate texture coordinates for sphere
+function textureSphere() {
     var latitudeBands = 40;
     var longitudeBands = 40;
 
-    for(var latNumber = 0; latNumber <= latitudeBands; latNumber++)
-    {
-        for(var longNumber = 0; longNumber <= longitudeBands; longNumber++)
-        {
+    for(var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
+        for(var longNumber = 0; longNumber <= longitudeBands; longNumber++) {
             var u = 1 - (longNumber/longitudeBands);
             var v = 1 - (latNumber/latitudeBands);
             texSphere.push(u);
@@ -475,45 +472,3 @@ function textureSphere()
         }
     }
 }
-
-// keyboard controls
-document.addEventListener('keydown', function(event) {
-    switch(event.keyCode) {
-        case 32: // space - shoot bubble
-            snd.play();
-            fire();
-            snd.currentTime = 0;
-            break;
-        case 39: // right arrow
-            if (cannonAngle > -85)
-                cannonAngle -= 3;
-            break;
-        case 37: // left arrow
-            if (cannonAngle < 85)
-                cannonAngle += 3;
-            break;
-        case 80: // p - pause game
-            pause = !pause;
-            if (pause)
-                music.pause();
-            else
-                music.play();
-            break;
-        case 83: // skip color
-            currBubble.color = nextBubble.color;
-            nextBubble.color = colors[Math.floor(Math.random() * colors.length)];
-            break;
-        case 82: // r - restart game
-            for(var i = 0; i < maxRows; i++) {
-                playingField[i] = undefined;
-            }
-            clearInterval(timer);
-            timer = setInterval(addRow, initialInterval);
-            cannonAngle = 0;
-            numRows = 0;
-            score = 0;
-            level = 1;
-            addRow();
-            break;
-    }
-});
