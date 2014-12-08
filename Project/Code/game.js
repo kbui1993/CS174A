@@ -71,12 +71,8 @@ function quit() {
 	$(".end").hide();
 	$("#stats").hide();
 
-	// clear playing field
-	for (var j = 0; j < numRows; j++) {
-        for (var k = 0; k < playingField[j].length; k++) {
-            playingField[j][k].draw = false;
-        }
-    }
+    playingField = Array(maxRows+1);
+    numRows = 0;
 
     currBubble.x = 0;
     currBubble.y = 0;
@@ -95,15 +91,16 @@ function quit() {
 function restart() {
 	enableKeyControls = true;
     playingField = Array(maxRows+1);
+    numRows = 0;
 
     clearInterval(timer);
     timer = setInterval(addRow, initialInterval);
 
-
-    currBubble = new Bubble(0,0);
-    nextBubble = new Bubble(lowerRight[0],lowerRight[1]);
+    currBubble.x = 0;
+    currBubble.y = 0;
+    currBubble.dx = 0;
+    currBubble.dy = 0;
     cannonAngle = 0;
-    numRows = 0;
     score = 0;
     level = 1;
     addRow();
@@ -122,9 +119,9 @@ function restart() {
 function updateScore() {
     score += pointsPerBubble;
 
-    if (score > level*pointsPerLevel*pointsPerBubble) {
+    if (score > level * pointsPerLevel * pointsPerBubble) {
         level++;
         clearInterval(timer);
-        timer = setInterval(addRow, initialInterval-500*level)
+        timer = setInterval(addRow, initialInterval - 500 * level)
     }
 }

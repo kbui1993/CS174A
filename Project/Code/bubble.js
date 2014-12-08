@@ -4,7 +4,6 @@ function Bubble(x,y) {
 	this.dx = 0;
 	this.dy = 0;
     this.color = colors[Math.floor(Math.random() * colors.length)];
-    this.detect = false; // used to color if detection bubble
     this.draw = true;
     this.match = false;
     this.connected = false;
@@ -255,10 +254,6 @@ function drawBubble(bubble) {
 
 	var translation = vec3(bubble.x, bubble.y, 0);
 	var color = bubble.color;
-
-	if (debugDetect && bubble.detect) {
-		color = [bubble.color[0], bubble.color[1], bubble.color[2], 0.6];
-	}
 
 	if (!bubble.draw && debugDraw) {
 		color = [0, 0, 0, 0.5];

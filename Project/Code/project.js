@@ -2,7 +2,6 @@
 var canvas;
 var gl;
 
-var debugDetect = 0;
 var debugDraw = 0;
 
 // initialize color variable
