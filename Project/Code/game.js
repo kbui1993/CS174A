@@ -33,7 +33,7 @@ document.addEventListener('keydown', function(event) {
 	            }
 	            break;
 	        case 81: // q - quit
-	        	quit();
+	        	gameOver();
 	            break;
 	        case 83: // s - sound on/off
 	        	sound = !sound;
