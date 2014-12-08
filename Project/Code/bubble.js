@@ -17,7 +17,9 @@ function copy(j, k, b) {
 	var matches = numMatches(j, k, b.color);
 
 	if (matches > 2) {
-		matchSound.play();
+		if (sound) {
+			matchSound.play();
+		}
 		removeBubbles();
 	}
 }

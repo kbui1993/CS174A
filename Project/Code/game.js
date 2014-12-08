@@ -5,8 +5,10 @@ document.addEventListener('keydown', function(event) {
 	if(enableKeyControls) {
 	    switch(event.keyCode) {
 	        case 32: // space - shoot bubble
-	            fireSound.play();
-	            fireSound.currentTime = 0;
+	        	if (sound) {
+	            	fireSound.play();
+	            	fireSound.currentTime = 0;
+	            }
 	            fire();
 	            break;
 	        case 39: // right arrow
@@ -28,6 +30,9 @@ document.addEventListener('keydown', function(event) {
 	                $("canvas").css("opacity", "1");
 	            }
 	            break;
+	        case 81: // q - quit
+	        	quit();
+	            break;
 	        case 83: // s - sound on/off
 	        	sound = !sound;
 	        	if(sound)
@@ -43,15 +48,13 @@ document.addEventListener('keydown', function(event) {
 });
 
 function gameOver() {
-	enableKeyControls = false;
-
 	$("h2").html("Score: " + score);
 	$("canvas").css("opacity", "0.5");
 	$("#stats").hide();
 	$(".end").show();
 
 	clearInterval(timer);
-
+	enableKeyControls = false;
     music.pause();
 	music = dora;
 	music.currentTime = 0;
@@ -59,16 +62,24 @@ function gameOver() {
 }
 
 function quit() {
-	$("canvas").css("opacity", "1");
+	$("canvas").css("opacity", "0.7");
 	$(".begin").show();
 	$(".end").hide();
+	$("#stats").hide();
 
+	// clear playing field
+	for (var j = 0; j < numRows; j++) {
+        for (var k = 0; k < playingField[j].length; k++) {
+            playingField[j][k].draw = false;
+        }
+    }
+
+	clearInterval(timer);
 	enableKeyControls = false;
-	// TO DO: clear canvas
-	// y u no work:
-	//gl.clearColor(0.8, 0.9, 1.0, 1);
-	gl.clearColor(0, 0, 0, 1);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    music.pause();
+	music = dora;
+	music.currentTime = 0;
+	music.play();
 }
 
 function restart() {

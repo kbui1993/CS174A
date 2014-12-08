@@ -78,17 +78,14 @@ var texCoord = [
 ];
 
 function start() {
-    // TO DO: change this so its not a hack
-    // link transformation matrices on js to html
-    modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
-    projectionMatrix = gl.getUniformLocation(program, "projectionMatrix");
-
+    $("canvas").css("opacity", "1");
     $(".begin").hide();
     restart();
 }
 
 // main function
 window.onload = function init() {
+    $("canvas").css("opacity", "0.7");
     music = dora;
     music.play();
 
@@ -145,6 +142,10 @@ window.onload = function init() {
     var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
     gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vTexCoord);
+
+    // link transformation matrices on js to html
+    modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
+    projectionMatrix = gl.getUniformLocation(program, "projectionMatrix");
 
     setInterval(render,10);
 }
