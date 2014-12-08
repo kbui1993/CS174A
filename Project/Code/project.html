@@ -12,8 +12,12 @@
 		varying vec2 fTexCoord;
 		uniform mat4 modelViewMatrix;
 		uniform mat4 projectionMatrix;
+		uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+		uniform vec3 lightPosition;
+		uniform float shininess;
 
 		void main() {
+    		// vec3 pos = vPosition.xyz;
 			fTexCoord = vTexCoord;
 			gl_Position = projectionMatrix*modelViewMatrix*vPosition;
 		}

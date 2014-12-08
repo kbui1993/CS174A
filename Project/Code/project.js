@@ -70,7 +70,8 @@ var enableKeyControls = false;
 // sound variables
 var sound = true;
 var fireSound = new Audio("sound/Ding.wav");
-var gameMusic = new Audio("sound/GrapeGarden.mp3");
+// var gameMusic = new Audio("sound/GrapeGarden.mp3");
+var gameMusic = new Audio(null);
 var matchSound = new Audio("sound/pop.wav");
 var dora = new Audio("sound/dora.mp3");
 var startSound = new Audio("sound/start.ogg");
@@ -101,7 +102,7 @@ var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 var specularProduct = mult(lightSpecular, materialSpecular);
 
 var shininess = 50;
-var lightPosition = vec3(0.0, 0.0, 0.0);
+var lightPosition = vec3(5.0, 0.0, 5.0);
 
 function start() {
     $("canvas").css("opacity", "1");
@@ -152,36 +153,43 @@ window.onload = function init() {
     // link vColor on js to html
     vColor = gl.getUniformLocation(program, "vColor");
 
+    // link vPosition from js to html
+    var vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.enableVertexAttribArray(vPosition);
+
     // create buffer for points
     vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    
-    // link vPosition from js to html
-    var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
+
+    // link vNormal from js to html
+    var vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.enableVertexAttribArray(vNormal);
 
     // create buffer for normals
     nBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
-    
-    // link vNormal from js to html
-    var vNormal = gl.getAttribLocation(program, "vNormal");
     gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vNormal);
-    
+
+    // link vTexCoord from js to html
+    var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
+    gl.enableVertexAttribArray(vTexCoord);
+   
     // create texture buffer
     tBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
-    
-    // link vTexCoord from js to html
-    var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
     gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vTexCoord);
-
+    
     // link transformation matrices on js to html
     modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
     projectionMatrix = gl.getUniformLocation(program, "projectionMatrix");
+
+    // link light variables on js to html
+    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),  flatten(ambientProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),  flatten(diffuseProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
+    gl.uniform3fv(gl.getUniformLocation(program, "lightPosition"),  flatten(lightPosition));
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"),  shininess);
 
     setInterval(render,10);
 }
@@ -463,15 +471,19 @@ function quad(vertices, points, normals, v1, v2, v3, v4, normal){
 
 // functions for generating sphere vertices
 function triangle(a, b, c) {
-     bubblePts.push(a);
-     bubblePts.push(b);
-     bubblePts.push(c);
+    bubblePts.push(a);
+    bubblePts.push(b);
+    bubblePts.push(c);
 
-     bubbleNormals.push(a[0],a[1], a[2], 0.0);
-     bubbleNormals.push(b[0],b[1], b[2], 0.0);
-     bubbleNormals.push(c[0],c[1], c[2], 0.0);
+    bubbleNormals.push(a[0],a[1], a[2], 0.0);
+    bubbleNormals.push(b[0],b[1], b[2], 0.0);
+    bubbleNormals.push(c[0],c[1], c[2], 0.0);
 
-     index += 3;
+    // texSphere.push(vec2((a[0]+1)/2,(a[1]+1)/2));
+    // texSphere.push(vec2((b[0]+1)/2,(b[1]+1)/2));
+    // texSphere.push(vec2((c[0]+1)/2,(c[1]+1)/2));
+
+    index += 3;
 }
 
 function divideTriangle(a, b, c, count) {
