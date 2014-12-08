@@ -79,6 +79,10 @@ function restart() {
     clearInterval(timer);
     timer = setInterval(addRow, initialInterval);
 
+    currBubble.x = 0;
+    currBubble.y = 0;
+    currBubble.dx = 0;
+    currBubble.dy = 0;
     cannonAngle = 0;
     numRows = 0;
     score = 0;
