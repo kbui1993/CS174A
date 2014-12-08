@@ -70,8 +70,7 @@ var enableKeyControls = false;
 // sound variables
 var sound = true;
 var fireSound = new Audio("sound/Ding.wav");
-// var gameMusic = new Audio("sound/GrapeGarden.mp3");
-var gameMusic = new Audio(null);
+var gameMusic = new Audio("sound/GrapeGarden.mp3");
 var matchSound = new Audio("sound/pop.wav");
 var dora = new Audio("sound/dora.mp3");
 var startSound = new Audio("sound/start.ogg");
