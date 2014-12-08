@@ -247,39 +247,39 @@ function render() {
     collision:
     for (var j = numRows-1; j >= 0; j--) {
         for (var k = 0; k < playingField[j].length; k++) {
-            // skip bubbles that do not need to be checked
-            playingField[j][k].detect = false;
+            // // skip bubbles that do not need to be checked
+            // playingField[j][k].detect = false;
 
-            // odd row
-            if (playingField[j].length % 2 && playingField[j+1] != null && j!=0) {
-                if (playingField[j+1][k].draw && playingField[j+1][k+1].draw) {
-                    if (k == 0 && playingField[j][k+1].draw)
-                        continue;
-                    else if (k == playingField[j].length-1 && playingField[j][k-1].draw)
-                        continue;
-                    else if (playingField[j][k-1].draw && playingField[j][k+1].draw)
-                        continue;
-                }
-            }
+            // // odd row
+            // if (playingField[j].length % 2 && playingField[j+1] != null && j!=0) {
+            //     if (playingField[j+1][k].draw && playingField[j+1][k+1].draw) {
+            //         if (k == 0 && playingField[j][k+1].draw)
+            //             continue;
+            //         else if (k == playingField[j].length-1 && playingField[j][k-1].draw)
+            //             continue;
+            //         else if (playingField[j][k-1].draw && playingField[j][k+1].draw)
+            //             continue;
+            //     }
+            // }
 
-            // even row
-            if (playingField[j].length % 2 == 0 && playingField[j+1] != null && j!=0) {
-                if (k == 0) {
-                    if (playingField[j][k+1].draw && playingField[j+1][k].draw)
-                        continue;
-                }
-                else if (k == playingField[j].length-1) {
-                    if (playingField[j][k-1].draw && playingField[j+1][k-1].draw)
-                        continue;
-                }
-                else if (playingField[j+1][k-1].draw && playingField[j+1][k].draw) {
-                    if (playingField[j][k-1].draw && playingField[j][k+1].draw)
-                        continue;
-                }
-            }
+            // // even row
+            // if (playingField[j].length % 2 == 0 && playingField[j+1] != null && j!=0) {
+            //     if (k == 0) {
+            //         if (playingField[j][k+1].draw && playingField[j+1][k].draw)
+            //             continue;
+            //     }
+            //     else if (k == playingField[j].length-1) {
+            //         if (playingField[j][k-1].draw && playingField[j+1][k-1].draw)
+            //             continue;
+            //     }
+            //     else if (playingField[j+1][k-1].draw && playingField[j+1][k].draw) {
+            //         if (playingField[j][k-1].draw && playingField[j][k+1].draw)
+            //             continue;
+            //     }
+            // }
 
-            // collision handling
-            playingField[j][k].detect = true;
+            // // collision handling
+            // playingField[j][k].detect = true;
             var dx = currBubble.x.toFixed(1) - playingField[j][k].x;
             var dy = currBubble.y.toFixed(1) - playingField[j][k].y;
             if (playingField[j][k].draw && dx * dx + dy * dy <= 3) {
