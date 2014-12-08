@@ -94,17 +94,14 @@ function quit() {
 
 function restart() {
 	enableKeyControls = true;
-	for (var i = 0; i < maxRows; i++) {
-        playingField[i] = undefined;
-	}
+    playingField = Array(maxRows+1);
 
     clearInterval(timer);
     timer = setInterval(addRow, initialInterval);
 
-    currBubble.x = 0;
-    currBubble.y = 0;
-    currBubble.dx = 0;
-    currBubble.dy = 0;
+
+    currBubble = new Bubble(0,0);
+    nextBubble = new Bubble(lowerRight[0],lowerRight[1]);
     cannonAngle = 0;
     numRows = 0;
     score = 0;
@@ -128,6 +125,6 @@ function updateScore() {
     if (score > level*pointsPerLevel*pointsPerBubble) {
         level++;
         clearInterval(timer);
-        timer = setInterval(addRow, initialInterval-1000*level)
+        timer = setInterval(addRow, initialInterval-500*level)
     }
 }

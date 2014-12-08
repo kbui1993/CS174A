@@ -20,14 +20,16 @@ var cannonColor = vec4(1, 1, 1.0, 1.0);
 var numVertices = 36;
 var cannonPts = [];
 var cannonNormals = [];
-var vertices = [vec4(-1, -1, 0, 1),
-                vec4(-1,  2, 0, 1),
+var vertices = [
                 vec4( 1,  2, 0 ,1),
                 vec4( 1, -1, 0, 1),
-                vec4(-1, -1, 0, 1),
                 vec4(-1,  2, 0, 1),
+                vec4(-1, -1, 0, 1),
                 vec4( 1,  2, 0 ,1),
-                vec4( 1, -1, 0 ,1)];
+                vec4( 1, -1, 0 ,1),
+                vec4(-1,  2, 0, 1),
+                vec4(-1, -1, 0, 1)
+                ];
 
 // bubble variables
 var bubblePts = [];
@@ -50,7 +52,7 @@ var bubbleNormals = [];
 var numRows = 0;
 var numCols = 10;
 var maxRows = 10;
-var playingField = Array(maxRows);
+var playingField = Array(maxRows+1);
 var upperLeft = [-9, 19];
 var lowerRight = [9, 1];
 var currBubble = new Bubble(0,0);
@@ -290,43 +292,16 @@ function render() {
         }
     }
 
+    if(numRows > maxRows) {
+        gameOver();
+        return;
+    }
+
     // check for collisions
     collision:
     for (var j = numRows-1; j >= 0; j--) {
         for (var k = 0; k < playingField[j].length; k++) {
-            // // skip bubbles that do not need to be checked
-            // playingField[j][k].detect = false;
-
-            // // odd row
-            // if (playingField[j].length % 2 && playingField[j+1] != null && j!=0) {
-            //     if (playingField[j+1][k].draw && playingField[j+1][k+1].draw) {
-            //         if (k == 0 && playingField[j][k+1].draw)
-            //             continue;
-            //         else if (k == playingField[j].length-1 && playingField[j][k-1].draw)
-            //             continue;
-            //         else if (playingField[j][k-1].draw && playingField[j][k+1].draw)
-            //             continue;
-            //     }
-            // }
-
-            // // even row
-            // if (playingField[j].length % 2 == 0 && playingField[j+1] != null && j!=0) {
-            //     if (k == 0) {
-            //         if (playingField[j][k+1].draw && playingField[j+1][k].draw)
-            //             continue;
-            //     }
-            //     else if (k == playingField[j].length-1) {
-            //         if (playingField[j][k-1].draw && playingField[j+1][k-1].draw)
-            //             continue;
-            //     }
-            //     else if (playingField[j+1][k-1].draw && playingField[j+1][k].draw) {
-            //         if (playingField[j][k-1].draw && playingField[j][k+1].draw)
-            //             continue;
-            //     }
-            // }
-
-            // // collision handling
-            // playingField[j][k].detect = true;
+            // collision handling
             var dx = currBubble.x.toFixed(1) - playingField[j][k].x;
             var dy = currBubble.y.toFixed(1) - playingField[j][k].y;
             if (playingField[j][k].draw && dx * dx + dy * dy <= 3) {
@@ -341,23 +316,23 @@ function render() {
                         copy(j, k+1, currBubble);
                     }
                     else if (dy > 1) {
-                        if (playingField[j].length % 2)
+                        if (playingField[j].length % 2) {
                             copy(j-1, k+1, currBubble);
-                        else
+                        }
+                        else {
                             copy(j-1, k, currBubble);
+                        }
                     }
                     else {
                         if (playingField[j+1] == null) {
-                            if(numRows == maxRows) {
-                                gameOver();
-                                return;
-                            }
                             addRowBottom();
                         }
-                        if (playingField[j].length % 2)
+                        if (playingField[j].length % 2) {
                             copy(j+1, k+1, currBubble);
-                        else
+                        }
+                        else {
                             copy(j+1, k, currBubble);
+                        }
                     }
                 }
                 else {
@@ -365,26 +340,25 @@ function render() {
                         copy(j, k-1, currBubble);
                     }
                     else if (dy > 1) {
-                        if (playingField[j].length % 2)
+                        if (playingField[j].length % 2) {
                             copy(j-1, k, currBubble);
-                        else
+                        }
+                        else {
                             copy(j-1, k-1, currBubble);
+                        }
                     }
                     else {
                         if (playingField[j+1] == null) {
-                            if(numRows == maxRows) {
-                                gameOver();
-                                return;
-                            }
                             addRowBottom();
                         }
-                        if (playingField[j].length % 2)
+                        if (playingField[j].length % 2) {
                             copy(j+1, k, currBubble);
-                        else
+                        }
+                        else {
                             copy(j+1, k-1, currBubble);
+                        }
                     }
                 }
-
                 currBubble.x = 0;
                 currBubble.y = 0;
                 currBubble.dx = 0;
@@ -402,6 +376,9 @@ function render() {
                 currBubble.color = nextBubble.color;
                 nextBubble.color = colors[Math.floor(Math.random() * colors.length)];
                 break collision;
+            }
+            if(numRows > maxRows) {
+                return;
             }
         }
     }

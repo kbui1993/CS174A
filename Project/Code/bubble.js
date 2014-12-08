@@ -15,6 +15,7 @@ function copy(j, k, b) {
 		console.log(j+' '+k);
 		return;
 	}
+
 	playingField[j][k].color = b.color;
 	playingField[j][k].draw = true;
 
@@ -185,7 +186,7 @@ function addRow() {
 		var dy = currBubble.dy;
 		currBubble.dx = 0; currBubble.dy = 0;
 
-		if (numRows == maxRows) {
+		if (numRows == maxRows+1) {
 			gameOver();
 			return;
 		}
