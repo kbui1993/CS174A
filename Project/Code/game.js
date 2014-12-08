@@ -74,6 +74,12 @@ function quit() {
         }
     }
 
+    currBubble.x = 0;
+    currBubble.y = 0;
+    currBubble.dx = 0;
+    currBubble.dy = 0;
+    cannonAngle = 0;
+
 	clearInterval(timer);
 	enableKeyControls = false;
     music.pause();
