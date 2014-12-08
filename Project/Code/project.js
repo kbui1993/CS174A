@@ -34,6 +34,9 @@ var vb = vec4(0.0, 0.942809, 0.333333, 1);
 var vc = vec4(-0.816497, -0.471405, 0.333333,1);
 var vd = vec4(0.816497, -0.471405, 0.333333,1);
 var index = 0;
+var spin = 0;
+var angularSpeed = 360 / 1000;
+
 
 // playing field variables
 var numRows = 0;
@@ -150,6 +153,7 @@ window.onload = function init() {
 
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    spin += 10*angularSpeed;
 
     // loop music
     if (typeof music.loop == 'boolean') {
@@ -179,13 +183,15 @@ function render() {
     gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
     gl.drawArrays(gl.TRIANGLES, 0, numVertices);
 
+    
+
+    // render line
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonPts), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
     configureTexture1(document.getElementById("texImage2"));
 
-    // render line
     var dx = 0, dy = 0;
     gl.uniform4fv(vColor, vec4(0.5, 0.5, 0.5, 1));
     for (var i = 0; i < 15; i++) {
@@ -462,8 +468,8 @@ function textureCube(texture_array, texture_coord) {
 
 // function to generate texture coordinates for sphere
 function textureSphere() {
-    var latitudeBands = 40;
-    var longitudeBands = 40;
+    var latitudeBands = 60;
+    var longitudeBands = 60;
 
     for(var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
         for(var longNumber = 0; longNumber <= longitudeBands; longNumber++) {

@@ -239,6 +239,7 @@ function drawBubble(bubble) {
 	}
 	ctm = mult(mat4(), translate(translation));
 	ctm = mult(ctm, scale(size));
+	ctm = mult(ctm, rotate(spin, vec3(1,1,1)));
 	gl.uniform4fv(vColor, color);
 	gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
 
