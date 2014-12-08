@@ -97,6 +97,28 @@ function removeBubbles() {
 		}
 	}
 
+	// trace all reachable bubbles from top row
+	for (var k = 0; k < playingField[0].length; k++) {
+		if (playingField[0][k].draw) {
+			playingField[0][k].connected = true;
+			var neighbors = getAdjacentBubbles(0, k);
+
+			for (var i = 0; i < neighbors.length; i++) {
+				checkConnected(neighbors[i][0],neighbors[i][1]);
+			}
+		}
+	}
+
+	// remove unconnected bubbles
+	for (var j = 0; j < numRows; j++) {
+		for (var k = 0; k < playingField[j].length; k++) {
+			if (playingField[j][k].draw && !playingField[j][k].connected) {
+				playingField[j][k].draw = false;
+				updateScore();
+			}
+		}
+	}
+
 	// remove any empty rows
 	var rows = numRows;
 	var emptyRowFound = false;
@@ -119,28 +141,6 @@ function removeBubbles() {
 		if (emptyRowFound) {
 			playingField[j] = null;
 			numRows--;
-		}
-	}
-
-	// trace all reachable bubbles from top row
-	for (var k = 0; k < playingField[0].length; k++) {
-		if (playingField[0][k].draw) {
-			playingField[0][k].connected = true;
-			var neighbors = getAdjacentBubbles(0, k);
-
-			for (var i = 0; i < neighbors.length; i++) {
-				checkConnected(neighbors[i][0],neighbors[i][1]);
-			}
-		}
-	}
-
-	// remove unconnected bubbles
-	for (var j = 0; j < numRows; j++) {
-		for (var k = 0; k < playingField[j].length; k++) {
-			if (playingField[j][k].draw && !playingField[j][k].connected) {
-				playingField[j][k].draw = false;
-				updateScore();
-			}
 		}
 	}
 }
