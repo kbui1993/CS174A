@@ -301,12 +301,13 @@ function render() {
                             copy(j-1, k, currBubble);
                     }
                     else {
-                        if (playingField[j+1] == null)
+                        if (playingField[j+1] == null) {
                             if(numRows == maxRows) {
                                 gameOver();
                                 return;
                             }
                             addRowBottom();
+                        }
                         if (playingField[j].length % 2)
                             copy(j+1, k+1, currBubble);
                         else
@@ -324,12 +325,13 @@ function render() {
                             copy(j-1, k-1, currBubble);
                     }
                     else {
-                        if (playingField[j+1] == null)
+                        if (playingField[j+1] == null) {
                             if(numRows == maxRows) {
                                 gameOver();
                                 return;
                             }
                             addRowBottom();
+                        }
                         if (playingField[j].length % 2)
                             copy(j+1, k, currBubble);
                         else
