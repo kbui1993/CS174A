@@ -35,8 +35,6 @@ var vc = vec4(-0.816497, -0.471405, 0.333333,1);
 var vd = vec4(0.816497, -0.471405, 0.333333,1);
 var index = 0;
 var spin = 0;
-var angularSpeed = 360 / 1000;
-
 
 // playing field variables
 var numRows = 0;
@@ -153,7 +151,7 @@ window.onload = function init() {
 
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    spin += 10*angularSpeed;
+    spin += level*4;
 
     // loop music
     if (typeof music.loop == 'boolean') {
