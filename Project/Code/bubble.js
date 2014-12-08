@@ -11,6 +11,10 @@ function Bubble(x,y) {
 }
 
 function copy(j, k, b) {
+	if (playingField[j][k] == null) {
+		console.log(j+' '+k);
+		return;
+	}
 	playingField[j][k].color = b.color;
 	playingField[j][k].draw = true;
 
