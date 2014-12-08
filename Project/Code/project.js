@@ -88,20 +88,20 @@ var texCoord = [
 ];
 
 // light variables
-var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
-var materialAmbient = vec4(1.0, 0.0, 0.0, 1.0);
+var lightAmbient = vec4(0.5, 0.5, 0.5, 1.0);
+var materialAmbient = vec4(1.0, 1.0, 1.0, 1.0);
 var ambientProduct = mult(lightAmbient, materialAmbient);
 
-var lightDiffuse = vec4(0.6, 0.6, 0.6, 1.0);
-var materialDiffuse = vec4(1.0, 0.0, 0.0, 1.0);
+var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+var materialDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var diffuseProduct = mult(lightDiffuse, materialDiffuse);
 
-var lightSpecular = vec4(0.4, 0.4, 0.4, 1.0);
+var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 var specularProduct = mult(lightSpecular, materialSpecular);
 
 var shininess = 50;
-var lightPosition = vec3(5.0, 0.0, 5.0);
+var lightPosition = vec4(0.0, 15.0, 10.0, 1.0);
 
 function start() {
     $("canvas").css("opacity", "1");
@@ -168,7 +168,7 @@ window.onload = function init() {
     // create buffer for normals
     nBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
-    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, 0, 0);
 
     // link vTexCoord from js to html
     var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
@@ -187,7 +187,7 @@ window.onload = function init() {
     gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),  flatten(ambientProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),  flatten(diffuseProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
-    gl.uniform3fv(gl.getUniformLocation(program, "lightPosition"),  flatten(lightPosition));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),  flatten(lightPosition));
     gl.uniform1f(gl.getUniformLocation(program, "shininess"),  shininess);
 
     setInterval(render,10);
@@ -444,12 +444,12 @@ function quad(a, b, c, d) {
 } */
 
 function cannon(vertices, points, normals){
-    quad(vertices, points, normals, 0, 1, 2, 3, vec3(0, 0, 1));
-    quad(vertices, points, normals, 4, 0, 6, 2, vec3(0, 1, 0));
-    quad(vertices, points, normals, 4, 5, 0, 1, vec3(1, 0, 0));
-    quad(vertices, points, normals, 2, 3, 6, 7, vec3(1, 0, 1));
-    quad(vertices, points, normals, 6, 7, 4, 5, vec3(0, 1, 1));
-    quad(vertices, points, normals, 1, 5, 3, 7, vec3(1, 1, 0 ));
+    quad(vertices, points, normals, 0, 1, 2, 3, vec4(0, 0, 1, 0));
+    quad(vertices, points, normals, 4, 0, 6, 2, vec4(0, 1, 0, 0));
+    quad(vertices, points, normals, 4, 5, 0, 1, vec4(1, 0, 0, 0));
+    quad(vertices, points, normals, 2, 3, 6, 7, vec4(1, 0, 1, 0));
+    quad(vertices, points, normals, 6, 7, 4, 5, vec4(0, 1, 1, 0));
+    quad(vertices, points, normals, 1, 5, 3, 7, vec4(1, 1, 0, 0));
 }
 
 function quad(vertices, points, normals, v1, v2, v3, v4, normal){
@@ -474,9 +474,9 @@ function triangle(a, b, c) {
     bubblePts.push(b);
     bubblePts.push(c);
 
-    bubbleNormals.push(a[0],a[1], a[2], 0.0);
-    bubbleNormals.push(b[0],b[1], b[2], 0.0);
-    bubbleNormals.push(c[0],c[1], c[2], 0.0);
+    bubbleNormals.push(a);
+    bubbleNormals.push(b);
+    bubbleNormals.push(c);
 
     // texSphere.push(vec2((a[0]+1)/2,(a[1]+1)/2));
     // texSphere.push(vec2((b[0]+1)/2,(b[1]+1)/2));

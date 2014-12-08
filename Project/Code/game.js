@@ -128,6 +128,6 @@ function updateScore() {
     if (score > level*pointsPerLevel*pointsPerBubble) {
         level++;
         clearInterval(timer);
-        timer = setInterval(addRow, initialInterval-2000*level)
+        timer = setInterval(addRow, initialInterval-1000*level)
     }
 }
