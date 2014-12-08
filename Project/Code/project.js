@@ -9,7 +9,7 @@ var debugDraw = 0;
 var vColor;
 
 // initialize buffers
-var vBuffer, tBuffer;
+var vBuffer, nBuffer, tBuffer;
 
 // matrix transformation variables
 var ctm, modelViewMatrix, projectionMatrix;
@@ -19,6 +19,15 @@ var cannonAngle = 0;
 var cannonColor = vec4(1, 1, 1.0, 1.0);
 var numVertices = 36;
 var cannonPts = [];
+var cannonNormals = [];
+var vertices = [vec4(-1, -1, 0, 1),
+                vec4(-1,  2, 0, 1),
+                vec4( 1,  2, 0 ,1),
+                vec4( 1, -1, 0, 1),
+                vec4(-1, -1, 0, 1),
+                vec4(-1,  2, 0, 1),
+                vec4( 1,  2, 0 ,1),
+                vec4( 1, -1, 0 ,1)];
 
 // bubble variables
 var bubblePts = [];
@@ -35,6 +44,7 @@ var vc = vec4(-0.816497, -0.471405, 0.333333,1);
 var vd = vec4(0.816497, -0.471405, 0.333333,1);
 var index = 0;
 var spin = 0;
+var bubbleNormals = [];
 
 // playing field variables
 var numRows = 0;
@@ -77,6 +87,22 @@ var texCoord = [
     vec2(1,0)
 ];
 
+// light variables
+var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+var materialAmbient = vec4(1.0, 0.0, 0.0, 1.0);
+var ambientProduct = mult(lightAmbient, materialAmbient);
+
+var lightDiffuse = vec4(0.6, 0.6, 0.6, 1.0);
+var materialDiffuse = vec4(1.0, 0.0, 0.0, 1.0);
+var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+
+var lightSpecular = vec4(0.4, 0.4, 0.4, 1.0);
+var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+var specularProduct = mult(lightSpecular, materialSpecular);
+
+var shininess = 50;
+var lightPosition = vec3(0.0, 0.0, 0.0);
+
 function start() {
     $("canvas").css("opacity", "1");
     $(".begin").hide();
@@ -118,7 +144,7 @@ window.onload = function init() {
     gl.useProgram(program);
 
     // generate vertices
-    cannon();
+    cannon(vertices, cannonPts, cannonNormals);
     textureCube(texCoordsArray, texCoord);
     textureSphere();
     tetrahedron(va, vb, vc, vd, 3);
@@ -134,6 +160,15 @@ window.onload = function init() {
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
+
+    // create buffer for normals
+    nBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
+    
+    // link vNormal from js to html
+    var vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vNormal);
     
     // create texture buffer
     tBuffer = gl.createBuffer();
@@ -176,6 +211,8 @@ function render() {
     gl.uniform4fv(vColor, cannonColor);
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonPts), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonNormals), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
     configureTexture1(document.getElementById("texImage3"));
@@ -186,6 +223,8 @@ function render() {
     // render line
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonPts), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(cannonNormals), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
     configureTexture1(document.getElementById("texImage2"));
@@ -220,6 +259,8 @@ function render() {
     // render playing field
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(bubblePts), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(bubbleNormals), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(texSphere), gl.STATIC_DRAW);
     configureTexture1(document.getElementById("texImage"));
@@ -367,7 +408,7 @@ function render() {
 }
 
 // functions for generating cube vertices
-function cannon() {
+/*function cannon() {
     quad(1, 0, 3, 2);
     quad(2, 3, 7, 6);
     quad(3, 0, 4, 7);
@@ -390,7 +431,34 @@ function quad(a, b, c, d) {
 
     for (var i = 0; i < indices.length; ++i) {
         cannonPts.push(vertices[indices[i]]);
+        // TO DO: push cannon normals, currently choosing random vec
+        cannonNormals.push(vec3(0,0,1));
     }
+} */
+
+function cannon(vertices, points, normals){
+    quad(vertices, points, normals, 0, 1, 2, 3, vec3(0, 0, 1));
+    quad(vertices, points, normals, 4, 0, 6, 2, vec3(0, 1, 0));
+    quad(vertices, points, normals, 4, 5, 0, 1, vec3(1, 0, 0));
+    quad(vertices, points, normals, 2, 3, 6, 7, vec3(1, 0, 1));
+    quad(vertices, points, normals, 6, 7, 4, 5, vec3(0, 1, 1));
+    quad(vertices, points, normals, 1, 5, 3, 7, vec3(1, 1, 0 ));
+}
+
+function quad(vertices, points, normals, v1, v2, v3, v4, normal){
+    normals.push(normal);
+    normals.push(normal);
+    normals.push(normal);
+    normals.push(normal);
+    normals.push(normal);
+    normals.push(normal);
+
+    points.push(vertices[v1]);
+    points.push(vertices[v3]);
+    points.push(vertices[v4]);
+    points.push(vertices[v1]);
+    points.push(vertices[v4]);
+    points.push(vertices[v2]);
 }
 
 // functions for generating sphere vertices
@@ -398,6 +466,11 @@ function triangle(a, b, c) {
      bubblePts.push(a);
      bubblePts.push(b);
      bubblePts.push(c);
+
+     bubbleNormals.push(a[0],a[1], a[2], 0.0);
+     bubbleNormals.push(b[0],b[1], b[2], 0.0);
+     bubbleNormals.push(c[0],c[1], c[2], 0.0);
+
      index += 3;
 }
 
