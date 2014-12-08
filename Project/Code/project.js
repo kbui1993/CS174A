@@ -151,7 +151,7 @@ window.onload = function init() {
 
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    spin += 50*angularSpeed;
+    spin += 10*angularSpeed;
 
     // loop music
     if (typeof music.loop == 'boolean') {
