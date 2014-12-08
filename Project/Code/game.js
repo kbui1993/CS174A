@@ -2,7 +2,7 @@
 
 // keyboard controls
 document.addEventListener('keydown', function(event) {
-	if(enableKeyCtrls)
+	if(enableKeyControls)
     switch(event.keyCode) {
         case 32: // space - shoot bubble
             fireSound.play();
@@ -46,7 +46,7 @@ document.addEventListener('keydown', function(event) {
 });
 
 function gameOver() {
-	enableKeyCtrls = false;
+	enableKeyControls = false;
 
 	$("h2").html("Score: " + score);
 	$("canvas").css("opacity", "0.5");
@@ -66,7 +66,7 @@ function quit() {
 	$(".begin").show();
 	$(".end").hide();
 
-	enableKeyCtrls = false;
+	enableKeyControls = false;
 	// TO DO: clear canvas
 	// y u no work:
 	//gl.clearColor(0.8, 0.9, 1.0, 1);
@@ -75,7 +75,7 @@ function quit() {
 }
 
 function restart() {
-	enableKeyCtrls = true;
+	enableKeyControls = true;
 	for (var i = 0; i < maxRows; i++)
         playingField[i] = undefined;
 
