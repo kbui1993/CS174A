@@ -12,12 +12,14 @@ document.addEventListener('keydown', function(event) {
 	            fire();
 	            break;
 	        case 39: // right arrow
-	            if (cannonAngle > -85)
+	            if (cannonAngle > -85) {
 	                cannonAngle -= 3;
+	            }
 	            break;
 	        case 37: // left arrow
-	            if (cannonAngle < 85)
+	            if (cannonAngle < 85) {
 	                cannonAngle += 3;
+	            }
 	            break;
 	        case 80: // p - pause game
 	            pause = !pause;
@@ -35,10 +37,12 @@ document.addEventListener('keydown', function(event) {
 	            break;
 	        case 83: // s - sound on/off
 	        	sound = !sound;
-	        	if(sound)
+	        	if (sound) {
 	        		music.play();
-	        	else
+	        	}
+	        	else {
 	        		music.pause();
+	        	}
 	            break;
 	        case 82: // r - restart game
 	            restart(); 
@@ -90,8 +94,9 @@ function quit() {
 
 function restart() {
 	enableKeyControls = true;
-	for (var i = 0; i < maxRows; i++)
+	for (var i = 0; i < maxRows; i++) {
         playingField[i] = undefined;
+	}
 
     clearInterval(timer);
     timer = setInterval(addRow, initialInterval);

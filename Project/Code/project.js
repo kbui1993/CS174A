@@ -99,8 +99,9 @@ window.onload = function init() {
     var html = "";
     var fontColors = new Array("#FF3399", "#9900CC", "#0033CC", "#2EB8B8", "#FF9933");
     
-    for (var i = 0; i < title.length; i++)
+    for (var i = 0; i < title.length; i++) {
         html += ("<span style=\"color:" + fontColors[(i % fontColors.length)] + ";\">" + title[i] + "</span>");
+    }
     
     $("h1.begin").html(html);
 
@@ -181,8 +182,6 @@ function render() {
 
     gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
     gl.drawArrays(gl.TRIANGLES, 0, numVertices);
-
-    
 
     // render line
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
@@ -404,7 +403,6 @@ function triangle(a, b, c) {
 
 function divideTriangle(a, b, c, count) {
     if (count > 0) {
-
         var ab = mix(a, b, 0.5);
         var ac = mix(a, c, 0.5);
         var bc = mix(b, c, 0.5);
@@ -454,7 +452,6 @@ function texturequad(texture_array, texture_coord) {
     texture_array.push(texture_coord[0]); 
     texture_array.push(texture_coord[2]);  
     texture_array.push(texture_coord[3]); 
-
 }
 
 // function to create vertices for texture cube

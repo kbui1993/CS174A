@@ -34,8 +34,9 @@ function numMatches(j, k, color) {
 
 	var neighbors = getAdjacentBubbles(j, k);
 
-	for (var i = 0; i < neighbors.length; i++)
+	for (var i = 0; i < neighbors.length; i++) {
 		count += numMatchesHelper(neighbors[i][0], neighbors[i][1], color);
+	}
 
 	return count;
 }
@@ -49,8 +50,9 @@ function numMatchesHelper(j, k, color) {
 
 		var neighbors = getAdjacentBubbles(j, k);
 
-		for (var i = 0; i < neighbors.length; i++)
+		for (var i = 0; i < neighbors.length; i++) {
 			count += numMatchesHelper(neighbors[i][0], neighbors[i][1], color);
+		}
 	}
 	return count;
 }
@@ -60,33 +62,42 @@ function getAdjacentBubbles(j, k) {
 	var cols = playingField[j].length;
 
 	if (j > 0) { // get bubbles above
-		if (k < 9)
+		if (k < 9) {
 			result = getAdjacentHelper(j-1, k, result);
-		if (cols%2 == 0 && k > 0) // even row
+		}
+		if (cols%2 == 0 && k > 0) { // even row
 			result = getAdjacentHelper(j-1, k-1, result);
-		else if (k < cols) // odd row
+		}
+		else if (k < cols) {// odd row
 			result = getAdjacentHelper(j-1, k+1, result);
+		}
 	}
 	if (j < numRows-1 ) { // get bubbles below
-		if (k < 9)
+		if (k < 9) {
 			result = getAdjacentHelper(j+1, k, result);
-		if (cols%2 == 0 && k > 0) // even row
+		}
+		if (cols%2 == 0 && k > 0) { // even row
 			result = getAdjacentHelper(j+1, k-1, result);
-		else if (k < cols) // odd row
+		}
+		else if (k < cols) { // odd row
 			result = getAdjacentHelper(j+1, k+1, result);
+		}
 	}
-	if (k > 0) // get left and right bubbles
+	if (k > 0) { // get left and right bubbles
 		result = getAdjacentHelper(j, k-1, result);
-	if (k < cols-1)
+	}
+	if (k < cols-1) {
 		result = getAdjacentHelper(j, k+1, result);
+	}
 
 	return result;
 }
 
 // add bubble if visible
 function getAdjacentHelper(j, k, result) {
-	if(playingField[j][k].draw)
+	if(playingField[j][k].draw) {
 		result.push([j, k]);
+	}
 
 	return result;
 }
@@ -140,8 +151,9 @@ function removeBubbles() {
 				}
 			}
 			// empty row found if assumption still true
-			if (assumeEmpty)
+			if (assumeEmpty) {
 				emptyRowFound = true;
+			}
 		}
 		// remove row and all rows underneath
 		if (emptyRowFound) {
@@ -180,10 +192,12 @@ function addRow() {
 
 		// generate new row
 		var newRow;
-		if(playingField[0] == null || playingField[0].length % 2)
+		if(playingField[0] == null || playingField[0].length % 2) {
 			newRow = Array(numCols);
-		else
+		}
+		else {
 			newRow = Array(numCols-1);
+		}
 
 		for (var i = 0; i < newRow.length; i++) {
 			// newRow[i] = new Bubble(2*i+upperLeft[0], upperLeft[1]);
@@ -207,12 +221,13 @@ function addRow() {
 }
 
 function addRowBottom() {
-	// generate new row
 	var newRow;
-	if(playingField[numRows-1].length % 2)
+	if (playingField[numRows-1].length % 2) {
 		newRow = Array(numCols);
-	else
+	}
+	else {
 		newRow = Array(numCols-1);
+	}
 
 	for (var i = 0; i < newRow.length; i++) {
 		// newRow[i] = new Bubble(2*i+upperLeft[0], upperLeft[1]);
@@ -233,23 +248,28 @@ function fire() {
 }
 
 function drawBubble(bubble) {
-	if (!bubble.draw && !debugDraw)
+	if (!bubble.draw && !debugDraw) {
 		return;
+	}
+
 	var translation = vec3(bubble.x, bubble.y, 0);
 	var color = bubble.color;
+
 	if (debugDetect && bubble.detect) {
 		color = [bubble.color[0], bubble.color[1], bubble.color[2], 0.6];
 	}
+
 	if (!bubble.draw && debugDraw) {
 		color = [0, 0, 0, 0.5];
 	}
+
 	ctm = mult(mat4(), translate(translation));
 	ctm = mult(ctm, scale(size));
 	ctm = mult(ctm, rotate(spin, vec3(1,1,1)));
 	gl.uniform4fv(vColor, color);
 	gl.uniformMatrix4fv(modelViewMatrix, false, flatten(ctm));
 
-	for( var i=0; i<index; i+=3) {
+	for (var i=0; i<index; i+=3) {
 		gl.drawArrays( gl.TRIANGLES, i, 3 );
 	}
 }
