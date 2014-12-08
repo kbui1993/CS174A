@@ -59,10 +59,11 @@ var enableKeyControls = false;
 // sound variables
 var sound = true;
 var fireSound = new Audio("sound/Ding.wav");
-var music = new Audio("sound/GrapeGarden.mp3");
+var gameMusic = new Audio("sound/GrapeGarden.mp3");
 var matchSound = new Audio("sound/pop.wav");
 var dora = new Audio("sound/dora.mp3");
 var startSound = new Audio("sound/start.ogg");
+var music;
 
 // intialize texture variables
 var texture;
@@ -87,7 +88,8 @@ function start() {
 
 // main function
 window.onload = function init() {
-    dora.play();
+    music = dora;
+    music.play();
 
     // initialize button hover handler
     $("#info-btn").hover(function() {$("#info").fadeIn();},

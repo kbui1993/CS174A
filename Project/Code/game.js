@@ -30,6 +30,10 @@ document.addEventListener('keydown', function(event) {
             break;
         case 83: // s - sound on/off
         	sound = !sound;
+        	if(sound)
+        		music.play();
+        	else
+        		music.pause();
         	/* TO DO: move skip color to another key control? is it even necessary?
         	// skip color
             currBubble.color = nextBubble.color;
@@ -51,9 +55,10 @@ function gameOver() {
 
 	clearInterval(timer);
 
-	music.pause();
-	dora.currentTime = 0;
-	dora.play();
+    music.pause();
+	music = dora;
+	music.currentTime = 0;
+	music.play();
 }
 
 function quit() {
@@ -87,8 +92,9 @@ function restart() {
     $(".end").hide();
     $("#stats").show();
 
-    dora.pause();
     startSound.play();
+    music.pause();
+    music = gameMusic;
     music.currentTime = 0;
     music.play();
 }
