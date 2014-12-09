@@ -2,7 +2,7 @@
 
 // keyboard controls
 document.addEventListener('keydown', function(event) {
-	if(event.keyCode == 80) { // p - pause game
+	if(gamePlay && event.keyCode == 80) { // p - pause game
         pause = !pause;
         enableKeyControls = !enableKeyControls;
         if (pause) {
@@ -48,18 +48,6 @@ document.addEventListener('keydown', function(event) {
 	        case 82: // r - restart game
 	            restart(); 
 	            break;
-	        case 88: // x - pause for debugging
-	        	pause = !pause;
-	        	enableKeyControls = true;
-	            if (pause) {
-	                music.pause();
-	                $("canvas").css("opacity", "0.7");
-	            }
-	            else {
-	                music.play();
-	                $("canvas").css("opacity", "1");
-	            }
-	            break;
 	    }
 	}
 });
@@ -70,6 +58,7 @@ function gameOver() {
 	$("#stats").hide();
 	$(".end").show();
 
+	gamePlay = false;
 	clearInterval(timer);
 	enableKeyControls = false;
     music.pause();
@@ -104,6 +93,7 @@ function quit() {
 }
 
 function restart() {
+	gamePlay = true;
 	enableKeyControls = true;
     playingField = Array(maxRows+1);
     numRows = 0;
