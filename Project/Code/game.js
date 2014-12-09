@@ -2,6 +2,18 @@
 
 // keyboard controls
 document.addEventListener('keydown', function(event) {
+	if(event.keyCode == 80) { // p - pause game
+        pause = !pause;
+        enableKeyControls = !enableKeyControls;
+        if (pause) {
+            music.pause();
+            $("canvas").css("opacity", "0.7");
+        }
+        else {
+            music.play();
+            $("canvas").css("opacity", "1");
+        }
+    }
 	if(enableKeyControls) {
 	    switch(event.keyCode) {
 	        case 32: // space - shoot bubble
@@ -21,17 +33,6 @@ document.addEventListener('keydown', function(event) {
 	                cannonAngle += 3;
 	            }
 	            break;
-	        case 80: // p - pause game
-	            pause = !pause;
-	            if (pause) {
-	                music.pause();
-	                $("canvas").css("opacity", "0.7");
-	            }
-	            else {
-	                music.play();
-	                $("canvas").css("opacity", "1");
-	            }
-	            break;
 	        case 81: // q - quit
 	        	gameOver();
 	            break;
@@ -46,6 +47,18 @@ document.addEventListener('keydown', function(event) {
 	            break;
 	        case 82: // r - restart game
 	            restart(); 
+	            break;
+	        case 88: // x - pause for debugging
+	        	pause = !pause;
+	        	enableKeyControls = true;
+	            if (pause) {
+	                music.pause();
+	                $("canvas").css("opacity", "0.7");
+	            }
+	            else {
+	                music.play();
+	                $("canvas").css("opacity", "1");
+	            }
 	            break;
 	    }
 	}

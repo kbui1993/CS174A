@@ -167,11 +167,6 @@ function removeBubbles() {
 		}
 
 		if (numRows == 0) {
-			if (pause) {
-				pause = false;
-				music.play();
-	            $("canvas").css("opacity", "1");
-			}
 			addRow();
 		}
 	}
