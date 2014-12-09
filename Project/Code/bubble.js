@@ -165,6 +165,15 @@ function removeBubbles() {
 			playingField[j] = null;
 			numRows--;
 		}
+
+		if (numRows == 0) {
+			if (pause) {
+				pause = false;
+				music.play();
+	            $("canvas").css("opacity", "1");
+			}
+			addRow();
+		}
 	}
 }
 
@@ -235,7 +244,6 @@ function addRowBottom() {
 	}
 
 	for (var i = 0; i < newRow.length; i++) {
-		// newRow[i] = new Bubble(2*i+upperLeft[0], upperLeft[1]);
 		newRow[i] = new Bubble(2 * i + upperLeft[0] + numCols - newRow.length, upperLeft[1] - numRows * 1.7);
 		newRow[i].draw = false;
 	}

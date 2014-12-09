@@ -63,6 +63,7 @@ function gameOver() {
 	music = dora;
 	music.currentTime = 0;
 	music.play();
+    pause = false;
 }
 
 function quit() {
@@ -86,6 +87,7 @@ function quit() {
 	music = dora;
 	music.currentTime = 0;
 	music.play();
+    pause = false;
 }
 
 function restart() {
@@ -114,6 +116,7 @@ function restart() {
     music = gameMusic;
     music.currentTime = 0;
     music.play();
+    pause = false;
 }
 
 function updateScore() {
