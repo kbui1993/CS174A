@@ -15,7 +15,7 @@ __________________
 * Rotation
   * Bubbles spin more quickly as player advances levels
 * Lighting
-  * ?? 
+  * Bubbles and cannon are lit by a point source 
 * Texture Mapping
   * Bubbles have steel texture
   * Cannon has wooden texture
