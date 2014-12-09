@@ -11,7 +11,6 @@ function Bubble(x,y) {
 
 function copy(j, k, b) {
 	if (playingField[j][k] == null) {
-		console.log(j+' '+k);
 		return;
 	}
 
@@ -174,13 +173,8 @@ function removeBubbles() {
 
 function checkConnected(j, k) {
 	playingField[j][k].connected = true;
-	console.log('checking [' + j + ', ' + k + ']');
 
 	var neighbors = getAdjacentBubbles(j, k);
-
-	console.log(neighbors);
-
-	// TODO: if no neighbors, not connected?
 
 	for (var i = 0; i < neighbors.length; i++) {
 		var nj = neighbors[i][0];
