@@ -292,7 +292,6 @@ function render() {
     }
 
     if(numRows > maxRows) {
-        gameOver();
         return;
     }
 

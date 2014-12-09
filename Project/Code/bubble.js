@@ -18,6 +18,11 @@ function copy(j, k, b) {
 	playingField[j][k].color = b.color;
 	playingField[j][k].draw = true;
 
+	if (numRows > maxRows) {
+		gameOver();
+		return;
+	}
+
 	var matches = numMatches(j, k, b.color);
 
 	if (matches > 2) {
@@ -185,11 +190,6 @@ function addRow() {
 		var dy = currBubble.dy;
 		currBubble.dx = 0; currBubble.dy = 0;
 
-		if (numRows == maxRows+1) {
-			gameOver();
-			return;
-		}
-
 		// generate new row
 		var newRow;
 		if(playingField[0] == null || playingField[0].length % 2) {
@@ -217,6 +217,11 @@ function addRow() {
 		numRows++;
 
 		currBubble.dx = dx; currBubble.dy = dy;
+
+		if (numRows > maxRows) {
+			gameOver();
+			return;
+		}
 	}
 }
 

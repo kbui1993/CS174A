@@ -5,7 +5,7 @@ document.addEventListener('keydown', function(event) {
 	if(enableKeyControls) {
 	    switch(event.keyCode) {
 	        case 32: // space - shoot bubble
-	        	if (sound) {
+	        	if (sound && currBubble.dy == 0) {
 	            	fireSound.play();
 	            	fireSound.currentTime = 0;
 	            }
