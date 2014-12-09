@@ -67,6 +67,7 @@ var timer;
 var initialInterval = 12000;
 var pointsPerBubble = 10;
 var enableKeyControls = false;
+var gamePlay = false;
 
 // sound variables
 var sound = true;
