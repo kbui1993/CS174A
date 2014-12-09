@@ -73,18 +73,18 @@ function getAdjacentBubbles(j, k) {
 		if (cols%2 == 0 && k > 0) { // even row
 			result = getAdjacentHelper(j-1, k-1, result);
 		}
-		else if (k < cols) {// odd row
+		else if (cols%2 != 0 && k < cols) {// odd row
 			result = getAdjacentHelper(j-1, k+1, result);
 		}
 	}
-	if (j < numRows-1 ) { // get bubbles below
+	if (j < numRows-1) { // get bubbles below
 		if (k < 9) {
 			result = getAdjacentHelper(j+1, k, result);
 		}
 		if (cols%2 == 0 && k > 0) { // even row
 			result = getAdjacentHelper(j+1, k-1, result);
 		}
-		else if (k < cols) { // odd row
+		else if (cols%2 != 0 && k < cols) { // odd row
 			result = getAdjacentHelper(j+1, k+1, result);
 		}
 	}
@@ -179,8 +179,13 @@ function removeBubbles() {
 
 function checkConnected(j, k) {
 	playingField[j][k].connected = true;
+	console.log('checking [' + j + ', ' + k + ']');
 
 	var neighbors = getAdjacentBubbles(j, k);
+
+	console.log(neighbors);
+
+	// TODO: if no neighbors, not connected?
 
 	for (var i = 0; i < neighbors.length; i++) {
 		var nj = neighbors[i][0];
